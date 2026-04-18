@@ -2108,7 +2108,7 @@ body.result-active .main-stage {
         <h1>แค่ 5 นาทีก็ได้รู้เลยว่า<br><span class="accent">ปีนี้ร้านคุณจะโตและรอดบน <span class="nowrap">Shopee ไหม</span></span></h1>
         <p>
           ด้วย AI Checklist ที่พัฒนามาจาก Ex-Shopee Staff ที่ปั้นร้านมาเยอะ เห็นมาเยอะทั้งร้านที่รุ่งและร่วง 
-	<br>5 นาทีนี้มีค่าแน่นอน ทำแล้วได้ผลวิเคราะห์แถมคำแนะนำที่ใช้ได้จริงด้วย ก่อนลงทุนลงแรงกับฟีเจอร์ ลองมาเช็คความพร้อมร้านกันก่อนค่ะ :)  <span class="nowrap"></span></br>
+	<br>5 นาทีนี้มีค่าแน่นอน ทำแล้วได้ผลวิเคราะห์แถมคำแนะนำที่ใช้ได้จริงด้วย ก่อนลงทุนลงแรงกับฟีเจอร์ <br>ลองมาเช็คความพร้อมร้านกันก่อนค่ะ :)</br>  <span class="nowrap"></span></br>
         </p>
         <div class="hero-actions">
           <button class="btn btn-primary" id="startBtn">เริ่มเลย! ✨</button>
@@ -3018,7 +3018,7 @@ function updateHUD() {
 
   if (state.phase === 'setup') el.stepPill.textContent = 'Step 0 · ตั้งค่าร้าน';
   if (state.phase === 'quick-question') el.stepPill.textContent = `เช็กเบื้องต้น ${state.current + 1}/${QUICK_QUESTIONS.length}`;
-  if (state.phase === 'quick-result') el.stepPill.textContent = 'ผลเบื้องต้น · เลือกทางโตที่เหมาะกับร้าน';
+  if (state.phase === 'quick-result') el.stepPill.textContent = 'ผลวิเคราะห์ภาพรวม';
   if (state.phase === 'deep-question') el.stepPill.textContent = `คำถามต่อยอด ${state.current + 1}/${getDeepQuestions().length}`;
   if (state.phase === 'final-preview') el.stepPill.textContent = 'ภาพรวม · ถ้าดูต่อจะโฟกัสอะไร';
 
@@ -3632,7 +3632,7 @@ function renderQuickResult() {
     <div class="result-card">
       <div class="result-top">
         <div>
-          <div class="result-type-pill">ผลเบื้องต้น • รอบแรกจบแล้ว</div>
+          <div class="result-type-pill">ผลวิเคราะห์ภาพรวม • เรียบร้อยแล้ว</div>
           <h2>ร้านคุณควรโตบน Shopee แบบไหน</h2>
           <div class="result-meta-lines">
             <div class="result-meta-line"><strong>หมวดหมู่สินค้า:</strong> ${escapeHTML(state.profile.shopCat || 'ไม่ระบุ')}</div>
@@ -3760,7 +3760,7 @@ function renderPayment() {
         <div class="payment-pay-box">
           <div class="payment-panel-title">ชำระเงินเพื่อปลดล็อก</div>
           <div class="payment-price">฿599</div>
-          <div class="payment-price-note">วิเคราะห์เชิงลึก + แผน 30 วัน · ใช้ได้ 1 ร้าน<br>หน้านี้เป็น mock up เพื่อพาไปดู flow ต่อ ยังไม่ได้ตัดเงินจริง</div>
+          <div class="payment-price-note">ผลวิเคราะห์เชิงลึก + แผน 30 วัน · สำหรับร้านคุณโดยเฉพาะ<br></div>
 
           <div class="payment-methods-inline">
             <div class="payment-method ${state.paymentMethod === 'promptpay' ? 'selected' : ''}" id="pmPromptpay">
@@ -3798,7 +3798,7 @@ function renderPayment() {
 
           <div class="payment-subcard">
             <strong>หลังชำระเงิน</strong>
-            <span>ระบบจะพาไปตอบคำถามต่อยอดอีก 5 ข้อ แล้วให้ใส่อีเมลเพื่อรับรายงานฉบับเต็ม</span>
+            <span>ระบบจะพาไปตอบคำถามต่อยอดอีก 5 ข้อ <br>แล้วให้ใส่อีเมลเพื่อรับรายงานฉบับเต็ม</br></span>
           </div>
 
           <div class="payment-help-note">ถ้ามีปัญหา ติดต่อได้ที่ Line: @ShopCheck</div>
@@ -5510,8 +5510,7 @@ renderFinalPreview = async function() {
               <p style="margin:6px 0 0;font-size:12px;line-height:1.66;color:var(--text2);">ถ้าไม่สะดวกเปิดอีเมล สามารถ Add LINE เพื่อรับไฟล์บนมือถือได้เช่นกัน</p>
             </div>
             <div class="premium-light-card" style="display:flex;flex-direction:column;">
-              <h3>ปุ่ม action บนหน้า</h3>
-              <p style="margin:0;font-size:12px;line-height:1.66;color:var(--text2);">หน้านี้ทำให้เห็นข้อสรุปหลักก่อน ส่วนคนที่อยากย้อนดูผลรอบแรกหรือเริ่มใหม่ สามารถกดปุ่มด้านล่างได้เลย</p>
+              <p style="margin:0;font-size:12px;line-height:1.66;color:var(--text2);">สามารถย้อนดูผลรอบแรกหรือเริ่มใหม่ กดปุ่มด้านล่างได้เลย<br>*หากกปดปุ่มเริ่มใหม่ จะเป็นการทำใหม่ตั้งแต่ต้น ผลวิเคราะห์ของรอบนี้จะถูกบันทึกและจัดส่งไปในอีเมลล์เท่านั้น</br></p>
               <div style="display:grid;gap:10px;margin-top:auto;">
                 <button class="nav-btn" id="backToQuickResultBtn">กลับไปดูผลวิเคราะห์ร้านฉบับพื้นฐาน</button>
                 <button class="nav-btn primary" id="restartFinalBtn">เริ่มใหม่ตั้งแต่ต้น</button>
