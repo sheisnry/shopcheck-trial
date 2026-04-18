@@ -1990,15 +1990,17 @@ body.result-active .main-stage {
 
 /* ── Trial Phase UI ─────────────────────────────────────── */
 .trial-banner {
-  display:flex; align-items:center; justify-content:center; gap:10px;
-  padding:10px 14px; margin:0 auto 14px; max-width:720px;
+  display:flex; align-items:center; justify-content:space-between; gap:14px;
+  padding:12px 20px; margin:0 0 16px; width:100%;
   border-radius:999px;
   background:linear-gradient(120deg, #fff5ea 0%, #ffe2d0 100%);
   border:1px solid #f2c7a7;
   font-size:13px; color:#8a3f0e; font-weight:600;
+  box-sizing:border-box;
+  text-align:left;
 }
 .trial-banner .tb-dot {
-  width:8px; height:8px; border-radius:50%;
+  width:8px; height:8px; border-radius:50%; flex-shrink:0;
   background:#ea5a18; box-shadow:0 0 0 4px rgba(234,90,24,.18);
   animation: trialPulse 1.8s ease-in-out infinite;
 }
@@ -2006,11 +2008,35 @@ body.result-active .main-stage {
   0%,100% { box-shadow:0 0 0 4px rgba(234,90,24,.18); }
   50%     { box-shadow:0 0 0 8px rgba(234,90,24,.04); }
 }
+.trial-banner .tb-copy {
+  flex:1 1 auto; min-width:0;
+  word-break:keep-all;
+  overflow-wrap:anywhere;
+  line-height:1.55;
+}
+.trial-banner .tb-copy .tb-lead,
+.trial-banner .tb-copy .tb-sub { display:inline; }
+.trial-banner .tb-copy .tb-lead::after { content:" · "; opacity:.5; }
 .trial-banner .tb-pill {
   display:inline-flex; align-items:center; gap:4px;
-  padding:2px 8px; border-radius:999px;
+  padding:3px 10px; border-radius:999px;
   background:rgba(234,90,24,.14); color:#b94a14;
   font-size:11px; font-weight:700;
+  white-space:nowrap; flex-shrink:0;
+}
+
+@media (max-width: 720px) {
+  .trial-banner {
+    border-radius:18px;
+    padding:12px 14px;
+    align-items:flex-start;
+    gap:10px;
+  }
+  .trial-banner .tb-dot { margin-top:6px; }
+  .trial-banner .tb-copy .tb-lead,
+  .trial-banner .tb-copy .tb-sub { display:block; }
+  .trial-banner .tb-copy .tb-lead::after { content:""; }
+  .trial-banner .tb-copy .tb-sub { margin-top:2px; font-weight:500; opacity:.88; }
 }
 
 .lock-trial-badge {
@@ -2034,6 +2060,33 @@ body.result-active .main-stage {
   background:#fff7ed; border:1px solid #fbd5ae;
   color:#8a3f0e; font-size:12px; line-height:1.55; text-align:center;
 }
+
+/* "Trial already used / trial closed" disabled button state.
+   Looks clearly inactive so testers can't confuse it with a real
+   paywall button during the beta window. */
+.btn-unlock.disabled,
+.btn-unlock[disabled] {
+  background:linear-gradient(120deg,#d6d3d1,#e7e5e4);
+  color:#78716c;
+  cursor:not-allowed;
+  box-shadow:none;
+  pointer-events:none;
+  opacity:.95;
+}
+.trial-done-card {
+  text-align:center;
+  padding:26px 22px;
+  border-radius:18px;
+  background:linear-gradient(180deg,#fff8f1,#fff3e6);
+  border:1px solid #fbd5ae;
+  color:#8a3f0e;
+  max-width:560px;
+  margin:0 auto;
+}
+.trial-done-card .tdc-icon { font-size:34px; line-height:1; margin-bottom:8px; }
+.trial-done-card .tdc-title { font-weight:700; font-size:16px; color:#7a3309; margin-bottom:6px; }
+.trial-done-card .tdc-sub   { font-size:13px; line-height:1.7; color:#8a3f0e; }
+.trial-done-card .tdc-hint  { font-size:12px; color:#a05b2a; margin-top:10px; }
 </style>
 </head>
 <body>
@@ -3777,6 +3830,18 @@ function renderPayment() {
     scrollStageTop();
   });
   document.getElementById('payConfirmBtn').addEventListener('click', () => {
+    // Defense-in-depth: during the trial phase, Stripe is not wired up
+    // and this mock screen must not become a back door to Part 2.
+    // The UI should already prevent reaching here in trial mode, but
+    // this guard makes the block hard.
+    if (state.trial && state.trial.requested) {
+      alert('รอบทดลอง Beta เปิดให้ใช้ได้ 1 ครั้งต่อคน · ระบบชำระเงินจริง (฿599) จะเปิดเร็ว ๆ นี้ค่ะ 🙏');
+      state.phase = 'quick-result';
+      renderCurrent();
+      scrollStageTop();
+      return;
+    }
+
     state.phase = 'deep-question';
     state.current = 0;
     renderCurrent();
@@ -5094,43 +5159,73 @@ renderQuickResult = async function() {
       ? ('เหลือ ' + state.trial.budgetLeft + ' ที่นั่ง')
       : 'เปิดรอบทดลอง';
 
+    const scTrialPillText = state.trial.open
+      ? (scTrialUsed ? 'ใช้สิทธิ์แล้ว' : scSeatsLabel)
+      : 'ปิดชั่วคราว';
+
     const scTrialBanner = state.trial.requested ? `
       <div class="trial-banner">
         <span class="tb-dot"></span>
-        <span>โหมด Trial · วิเคราะห์ Part 2 ฟรีสำหรับรอบ Beta</span>
-        ${state.trial.open
-          ? `<span class="tb-pill">${scTrialUsed ? 'ใช้สิทธิ์แล้ว' : escapeHTML(scSeatsLabel)}</span>`
-          : `<span class="tb-pill">ปิดชั่วคราว</span>`}
+        <span class="tb-copy"><span class="tb-lead">โหมด Trial · วิเคราะห์ Part 2</span><span class="tb-sub">ฟรีสำหรับรอบ Beta</span></span>
+        <span class="tb-pill">${escapeHTML(scTrialPillText)}</span>
       </div>
     ` : '';
 
-    const scLockOverlayHTML = scTrialActive ? `
-      <div class="result-lock-overlay">
-        <div class="lock-trial-badge">⚡ สิทธิ์ทดลองฟรี · Beta</div>
-        <div class="lock-icon">🔓</div>
-        <div class="lock-headline">ปลดล็อก Part 2 ฟรี<br>(รอบทดลองช่วงสั้น ๆ)</div>
-        <div class="lock-sub">ตอบอีก 5 ข้อแล้วเราจะวิเคราะห์ให้ลึก<br>ไม่ต้องจ่ายตอนนี้ · ใช้ได้ 1 ครั้งต่อคน</div>
-        <div class="lock-trial-price">
-          <span class="was">฿599</span>
-          <span class="now">฿0</span>
+    // Three-way overlay:
+    //  (a) Trial is active and this visitor still has a free seat → orange claim button
+    //  (b) Trial is requested but this visitor already used their seat (or the window closed) → disabled state, no Part 2 access
+    //  (c) Not in trial mode (future public launch) → real ฿599 paywall
+    let scLockOverlayHTML;
+    if (scTrialActive) {
+      scLockOverlayHTML = `
+        <div class="result-lock-overlay">
+          <div class="lock-trial-badge">⚡ สิทธิ์ทดลองฟรี · Beta</div>
+          <div class="lock-icon">🔓</div>
+          <div class="lock-headline">ปลดล็อก Part 2 ฟรี<br>(รอบทดลองช่วงสั้น ๆ)</div>
+          <div class="lock-sub">ตอบอีก 5 ข้อแล้วเราจะวิเคราะห์ให้ลึก<br>ไม่ต้องจ่ายตอนนี้ · ใช้ได้ 1 ครั้งต่อคน</div>
+          <div class="lock-trial-price">
+            <span class="was">฿599</span>
+            <span class="now">฿0</span>
+          </div>
+          <button class="btn-unlock trial" id="unlockDeepBtn">ปลดล็อกฟรี (Trial) →</button>
+          <div class="lock-guarantee">🎁 ช่วงทดลองเท่านั้น · ใช้ได้ครั้งเดียวต่อเครื่อง/อีเมล</div>
         </div>
-        <button class="btn-unlock trial" id="unlockDeepBtn">ปลดล็อกฟรี (Trial) →</button>
-        <div class="lock-guarantee">🎁 ช่วงทดลองเท่านั้น · ใช้ได้ครั้งเดียวต่อเครื่อง/อีเมล</div>
-      </div>
-    ` : `
-      <div class="result-lock-overlay">
-        <div class="lock-icon">🔒</div>
-        <div class="lock-headline">ปลดล็อกวิเคราะห์เชิงลึก<br>+ แผน 30 วัน</div>
-        <div class="lock-sub">ตอบอีก 5 ข้อ แล้วเราจะวิเคราะห์ให้ลึกกว่านี้มาก<br>เจาะตรงร้านคุณ ไม่ใช่แค่คำแนะนำทั่วไป</div>
-        <div class="lock-price-row">
-          <div class="lock-price">฿599</div>
-          <div class="lock-price-note">จ่ายครั้งเดียว<br>ไม่มีค่าสมาชิก</div>
+      `;
+    } else if (state.trial.requested) {
+      // Trial window was requested, but this visitor can't proceed:
+      // either they already used their seat, seats are full, or trial is off.
+      const tdcTitle = scTrialUsed
+        ? 'คุณใช้สิทธิ์ trial ไปแล้วค่ะ'
+        : (state.trial.budgetLeft === 0 ? 'สิทธิ์ trial เต็มโควต้าแล้วค่ะ' : 'รอบทดลองปิดอยู่ค่ะ');
+      const tdcSub = scTrialUsed
+        ? 'รอบทดลอง Beta เปิดให้ใช้ได้ 1 ครั้งต่อคน · ขอบคุณที่ร่วมทดสอบนะคะ 🙏'
+        : 'ขอบคุณที่สนใจ ShopCheck นะคะ 🙏 ตอนนี้รอบทดลองยังไม่เปิดให้ใช้เพิ่ม';
+      scLockOverlayHTML = `
+        <div class="result-lock-overlay">
+          <div class="trial-done-card">
+            <div class="tdc-icon">✅</div>
+            <div class="tdc-title">${escapeHTML(tdcTitle)}</div>
+            <div class="tdc-sub">${escapeHTML(tdcSub)}</div>
+            <div class="tdc-hint">ระบบชำระเงินจริง (฿599) จะเปิดเร็ว ๆ นี้</div>
+          </div>
+          <button class="btn-unlock disabled" id="unlockDeepBtn" disabled aria-disabled="true">ใช้สิทธิ์ trial ครบแล้ว</button>
         </div>
-        <button class="btn-unlock" id="unlockDeepBtn">ปลดล็อกเลย →</button>
-        <div class="lock-guarantee">🔐 ชำระผ่าน Promptpay / โอนเงิน · ปลอดภัย 100%</div>
-        ${scTrialUsed ? `<div class="trial-used-note">คุณใช้สิทธิ์ trial ไปแล้วค่ะ ถ้าอยากวิเคราะห์ร้านเพิ่ม สามารถชำระ ฿599 ต่อได้ที่นี่เลย</div>` : ''}
-      </div>
-    `;
+      `;
+    } else {
+      scLockOverlayHTML = `
+        <div class="result-lock-overlay">
+          <div class="lock-icon">🔒</div>
+          <div class="lock-headline">ปลดล็อกวิเคราะห์เชิงลึก<br>+ แผน 30 วัน</div>
+          <div class="lock-sub">ตอบอีก 5 ข้อ แล้วเราจะวิเคราะห์ให้ลึกกว่านี้มาก<br>เจาะตรงร้านคุณ ไม่ใช่แค่คำแนะนำทั่วไป</div>
+          <div class="lock-price-row">
+            <div class="lock-price">฿599</div>
+            <div class="lock-price-note">จ่ายครั้งเดียว<br>ไม่มีค่าสมาชิก</div>
+          </div>
+          <button class="btn-unlock" id="unlockDeepBtn">ปลดล็อกเลย →</button>
+          <div class="lock-guarantee">🔐 ชำระผ่าน Promptpay / โอนเงิน · ปลอดภัย 100%</div>
+        </div>
+      `;
+    }
 
     el.stageCard.innerHTML = `
       <div class="result-card">
@@ -5212,8 +5307,22 @@ renderQuickResult = async function() {
     document.getElementById('unlockDeepBtn').addEventListener('click', async () => {
       const btn = document.getElementById('unlockDeepBtn');
 
-      // ── Trial path: atomic single-seat claim on the server ─────
-      if (state.trial.requested && state.trial.open && !state.trial.alreadyClaimed) {
+      // ── TRIAL MODE ─────────────────────────────────────────────
+      // During the beta rollout the trial is the ONLY way into
+      // Part 2. Real Stripe isn't wired up yet, so we must NEVER
+      // fall through to renderPayment() in trial mode — that mock
+      // screen would otherwise be an unlocked back door to Part 2.
+      if (state.trial.requested) {
+
+        // If the trial is closed or this visitor has already used
+        // their free seat, the button itself is disabled; this is
+        // just belt-and-braces for any programmatic click.
+        if (!state.trial.open || state.trial.alreadyClaimed) {
+          alert('คุณใช้สิทธิ์ trial ไปแล้วค่ะ · รอบทดลอง Beta เปิดให้ใช้ได้ 1 ครั้งต่อคน\nระบบชำระเงินจริง (฿599) จะเปิดเร็ว ๆ นี้ ขอบคุณที่ร่วมทดสอบค่ะ 🙏');
+          return;
+        }
+
+        // Atomic single-seat claim on the server.
         if (btn) {
           btn.disabled = true;
           btn.textContent = 'กำลังเปิดสิทธิ์ trial…';
@@ -5222,7 +5331,6 @@ renderQuickResult = async function() {
         const result = await scClaimTrial();
 
         if (result.ok) {
-          // Success — skip payment screen entirely, go straight to Part 2
           state.phase = 'deep-question';
           state.current = 0;
           renderCurrent();
@@ -5230,29 +5338,34 @@ renderQuickResult = async function() {
           return;
         }
 
-        // Claim failed — surface a friendly message and fall back to 599
-        if (btn) {
-          btn.disabled = false;
-          btn.textContent = 'ปลดล็อกเลย →';
-          btn.classList.remove('trial');
-        }
-
+        // Claim failed → update state, re-render so the overlay
+        // switches to the "trial used / closed" disabled state, and
+        // stop here. Do NOT navigate to the payment mockup.
         if (result.reason === 'already_claimed') {
           state.trial.alreadyClaimed = true;
-          alert('คุณใช้สิทธิ์ trial ไปแล้วค่ะ ถ้าอยากวิเคราะห์ร้านเพิ่ม สามารถชำระ ฿599 ได้ที่นี่เลย');
+          alert('คุณใช้สิทธิ์ trial ไปแล้วค่ะ · รอบทดลอง Beta เปิดให้ใช้ได้ 1 ครั้งต่อคน\nระบบชำระเงินจริง (฿599) จะเปิดเร็ว ๆ นี้ ขอบคุณที่ร่วมทดสอบค่ะ 🙏');
         } else if (result.reason === 'budget_exhausted') {
           state.trial.open = false;
-          alert('สิทธิ์ trial เต็มโควต้าแล้วค่ะ ขอบคุณที่สนใจ · ถ้าอยากวิเคราะห์ร้านต่อ สามารถชำระ ฿599 ได้เลยนะคะ');
+          alert('สิทธิ์ trial เต็มโควต้าแล้วค่ะ ขอบคุณที่สนใจ 🙏\nระบบชำระเงินจริง (฿599) จะเปิดเร็ว ๆ นี้');
         } else if (result.reason === 'trial_closed') {
           state.trial.open = false;
-          alert('รอบทดลองปิดแล้วค่ะ ขอบคุณที่ร่วมเบต้า · ตอนนี้สามารถชำระ ฿599 เพื่อปลดล็อกได้เลย');
+          alert('รอบทดลองปิดแล้วค่ะ ขอบคุณที่ร่วมเบต้า 🙏\nระบบชำระเงินจริง (฿599) จะเปิดเร็ว ๆ นี้');
         } else {
-          alert('ขออภัยค่ะ ระบบเปิดสิทธิ์ trial ไม่สำเร็จ ลองใหม่อีกครั้ง หรือชำระ ฿599 เพื่อปลดล็อก');
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'ปลดล็อกฟรี (Trial) →';
+          }
+          alert('ขออภัยค่ะ ระบบเปิดสิทธิ์ trial ไม่สำเร็จ ลองใหม่อีกครั้งนะคะ');
+          return;
         }
-        // Fall through → normal payment flow
+
+        renderCurrent();
+        scrollStageTop();
+        return;
       }
 
-      // ── Default (paid) path ────────────────────────────────────
+      // ── NON-TRIAL (future public launch) ───────────────────────
+      // When Stripe goes live, this path shows the real paywall.
       state.phase = 'payment';
       renderCurrent();
       scrollStageTop();
@@ -5324,10 +5437,6 @@ renderFinalPreview = async function() {
 
     el.stageCard.innerHTML = `
       <div class="result-card" style="padding:0; overflow:hidden; border-radius:34px;">
-        <div class="topbar" style="border-radius:0; margin:0;">
-          <div class="brand-copy"><strong>Shop<span>Check</span></strong></div>
-          <div class="tagline" style="background:none;border:none;padding:0;color:rgba(255,255,255,.78);">โดย Niranya · Ex-Shopee TH<br>ผลสรุปสำหรับอ่านบนหน้าเว็บ</div>
-        </div>
         <div style="padding:18px 24px; background:linear-gradient(180deg,#fff5ee 0%, #fff0e5 100%); border-bottom:1px solid #f8dccf;">
           <div style="display:flex;gap:12px;align-items:flex-start;max-width:860px;">
             <div style="width:34px;height:34px;border-radius:999px;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0;">✓</div>
@@ -5364,12 +5473,12 @@ renderFinalPreview = async function() {
             </div>
             <div class="premium-light-card">
               <h3>แผน 30 วัน</h3>
-              <div class="sc-plan-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+              <div class="sc-plan-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
                 ${weeks.map((w, idx) => `
-                  <div style="border:1px solid #f6e2d7;border-radius:16px;padding:14px 14px 16px;min-height:126px;position:relative;overflow:hidden;background:${idx===0?'linear-gradient(180deg,#fff9f4 0%, #fff3ee 100%)':idx===1?'linear-gradient(180deg,#fff8ee 0%, #fff0df 100%)':idx===2?'linear-gradient(180deg,#fffced 0%, #f8f1d6 100%)':'linear-gradient(180deg,#f5faed 0%, #e7f3da 100%)'};">
-                    <div style="margin:0 0 5px;font-size:11px;color:${idx===3?'#4f7f1b':idx===2?'#9b7d1c':idx===1?'#bc6b2f':'var(--text3)'};">${escapeHTML(w.week || '')}</div>
-                    <div style="margin:0 0 7px;font-size:14px;line-height:1.45;font-weight:700;color:var(--text);">${escapeHTML(w.title || '')}</div>
-                    <div style="margin:0;font-size:12px;line-height:1.62;color:var(--text2);">${escapeHTML(w.detail || '')}</div>
+                  <div style="border:1px solid #f6e2d7;border-radius:18px;padding:18px 20px 20px;min-height:150px;position:relative;overflow:hidden;background:${idx===0?'linear-gradient(180deg,#fff9f4 0%, #fff3ee 100%)':idx===1?'linear-gradient(180deg,#fff8ee 0%, #fff0df 100%)':idx===2?'linear-gradient(180deg,#fffced 0%, #f8f1d6 100%)':'linear-gradient(180deg,#f5faed 0%, #e7f3da 100%)'};">
+                    <div style="margin:0 0 6px;font-size:11px;font-weight:700;letter-spacing:.04em;color:${idx===3?'#4f7f1b':idx===2?'#9b7d1c':idx===1?'#bc6b2f':'var(--text3)'};">${escapeHTML(w.week || '')}</div>
+                    <div style="margin:0 0 8px;font-size:15px;line-height:1.42;font-weight:700;color:var(--text);">${escapeHTML(w.title || '')}</div>
+                    <div style="margin:0;font-size:13px;line-height:1.65;color:var(--text2);">${escapeHTML(w.detail || '')}</div>
                   </div>
                 `).join('')}
               </div>
