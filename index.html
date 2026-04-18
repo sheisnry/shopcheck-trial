@@ -4652,14 +4652,12 @@ function buildStep2Prompt() {
   const quickSummary = QUICK_QUESTIONS.map(q => {
     const a = state.quickAnswers[q.id];
     return `- ${q.title}: ${a ? a.label : "ไม่ได้ตอบ"}${a ? ` | ${a.sub}` : ""}`;
-  }).join("
-");
+  }).join("\n");
 
   const deepSummary = DEEP_COMMON.map(q => {
     const a = state.deepAnswers[q.id];
     return `- ${q.title}: ${formatDeepAnswer(a)}`;
-  }).join("
-");
+  }).join("\n");
 
   const totalScore = getQuickScore();
   const quickType = getQuickTypeLabel();
@@ -4767,7 +4765,7 @@ function parseStep2JsonPayload(raw) {
   for (let i = start; i < text.length; i += 1) {
     const ch = text[i];
     if (escaped) { escaped = false; continue; }
-    if (ch === '\') { escaped = true; continue; }
+    if (ch === '\\') { escaped = true; continue; }
     if (ch === '"') { inString = !inString; continue; }
     if (inString) continue;
     if (ch === '{') depth += 1;
