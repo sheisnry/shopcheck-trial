@@ -4501,6 +4501,21 @@ const DIAGNOSIS_LOGIC = `
 - ถ้าคำตอบบอกว่าร้านติดหลายข้อจำกัด ให้จัดลำดับว่าอะไรควรแก้ก่อนโดยดู impact ต่อยอดขายจริง
 - ถ้าร้านมีหลายสินค้า ให้พูดชัดว่าให้เริ่มจากสินค้าขายดีสุด หรือสินค้าที่อยากดันก่อนเท่านั้น ไม่ต้องกระจายทั้งร้าน
 - ห้ามเขียนเหมือน checklist ทั่วไป ต้องเลือกทิศทางให้ร้านนี้
+
+Tool Gap Analysis (สำคัญมาก — ห้ามข้าม):
+- เมื่อเจ้าของร้านระบุ "สินค้าที่อยากดัน" แล้ว ห้ามเขียนคำแนะนำแบบ "ให้ผูกเครื่องมือที่มีอยู่กับสินค้าตัวนั้น" หรือ "ให้เจาะกับสินค้าที่อยากดันก่อน" เพราะถือว่าเจ้าของร้านรู้อยู่แล้วว่าเครื่องมือที่เขาใช้ก็ใช้กับสินค้านี้โดยปริยาย คำแนะนำแบบนี้ดูย้อนแย้งและดู AI ไม่ได้อ่านคำตอบจริง
+- ต้องทำ gap analysis จริง ตามขั้นตอนนี้:
+  1) ประเมินจาก (หมวดหมู่ + สินค้าที่อยากดัน) ว่าเครื่องมือ/ช่องทางอะไรคือ "essential set" สำหรับสินค้าประเภทนี้ ตัวอย่าง: Shopee Video, Affiliate, Flash Sale ของ platform, Keyword Ads, Discovery Ads, คูปองร้าน, Bundle / GWP, Live, Broadcast ลูกค้าเก่า
+  2) เทียบกับเครื่องมือที่ร้านใช้อยู่แล้วจากคำตอบ Part 2
+  3) ถ้ามี gap (เครื่องมือที่เหมาะ แต่ร้านยังไม่ใช้) → แนะนำให้เริ่มใช้ พร้อมระบุเหตุผลว่าทำไมเครื่องมือนี้เหมาะกับสินค้านี้โดยเฉพาะ
+  4) ถ้าไม่มี gap (ร้านใช้ essential tools ครบแล้ว) → ห้ามแนะนำเครื่องมือซ้ำเด็ดขาด ให้พลิกมุมไปเรื่อง Visibility / Scale แทน ตัวอย่างที่ใช้ได้:
+     • ลงแคมเปญฟรีของ Shopee (seller จะมี notification แจ้งแคมเปญที่เข้าได้จากระบบเป็นระยะ — ดูใน Seller Center)
+     • เข้าร่วม Flash Sale ของ platform ในหมวดที่เหมาะ (ไม่ใช่ Flash Sale ของร้านเอง)
+     • ขยายช่องทาง traffic จากนอก Shopee (TikTok / IG / FB / LINE OA) เพื่อดึงลูกค้าใหม่เข้าร้าน
+     • ต่อยอดคอนเทนต์ด้วย Affiliate KOL ส่งสินค้าฟรีรีวิว เพื่อสร้างภาพจำและ content feed ต่อเนื่อง
+     • กระตุ้นลูกค้าเก่าให้ซื้อซ้ำผ่าน Chat Broadcast / Follower Perks
+     • วัด ROI ของแต่ละเครื่องมือที่ใช้อยู่ แล้วเพิ่มงบเฉพาะตัวที่ performance ดี ไม่ใช่กระจายเงินทุกช่อง
+- ห้ามแนะนำเครื่องมือที่ร้านใช้อยู่แล้วโดยไม่วิเคราะห์ว่าทำไมยังไม่เวิร์ก — ถ้าจะพูดเรื่องเครื่องมือที่ใช้อยู่ ต้องบอกสาเหตุที่ยังไม่ได้ผล และสิ่งที่ควรเปลี่ยน ไม่ใช่บอกให้ใช้ต่อแบบไม่มีเหตุผลใหม่
 `;
 
 const FORMAT_POLICY = `
@@ -4768,6 +4783,18 @@ ${SELF_CHECK}
 - ถ้าจะเสนอ Ads ต้องเป็นลำดับหลังจาก foundation พร้อมแล้ว
 - Channel Fit ต้องกล้าตัดสิน ไม่ใช่ตอบกลาง ๆ
 
+โครงสร้างแผน 30 วันที่บังคับ (ห้ามเพี้ยน — เน้น practical + data-driven):
+- สัปดาห์ 1 — Foundation Prep (รวมงานเตรียมในสัปดาห์เดียว): ปรับ 5 ภาพแรก + รายละเอียดสินค้า + ข้อความหน้าสินค้า + ตั้งโปร/คูปองพร้อมใช้งาน ห้ามแยกเรื่องภาพกับโปรเป็น 2 สัปดาห์ต่างกัน เพราะเจ้าของร้านทำคู่ขนานได้ในสัปดาห์เดียว
+- สัปดาห์ 2 — Launch & Drive Traffic: เริ่มใช้เครื่องมือที่ "ขาด" จาก Tool Gap Analysis เช่น ยิง Ads (Keyword / Product / Discovery) + เปิดโปรกระตุ้นการตัดสินใจ + ลง Shopee Video เพื่อ feed content
+- สัปดาห์ 3 — Review & Double Down: ต้องมีคำว่า "ดู performance" หรือ "เช็กหลังบ้าน" หรือ "ประเมิน traffic/Ads" เข้า Seller Center ดู Traffic / CTR / Conversion Rate / ROI ของ Ads ถ้าเจอตัวที่ ROI ดี → เพิ่มงบ Ads เฉพาะตัวนั้น / ถ้า Video มียอด view ดี → เริ่มโปรแกรม Affiliate ส่งสินค้าฟรีให้ KOL เพื่อสร้าง content ต่อเนื่องและภาพจำ
+- สัปดาห์ 4 — Evaluate & Set Direction: ต้องมีคำว่า "สรุปผล" หรือ "ทิศทางต่อ" หรือ "เดือนหน้า" สรุปผล 30 วัน เปรียบเทียบ ROI ระหว่าง Ads / Content / Affiliate / โปร เพื่อให้เจ้าของร้านมีทิศทางว่าเดือนหน้าควร double down อะไรและตัดอะไร ห้ามจบแบบ "ทำต่อไปเรื่อย ๆ" เพราะไม่ใช่ action ที่ใช้ได้จริง
+
+กฎตรวจสอบแผน 30 วัน (self-check ก่อนส่ง):
+- สัปดาห์ 1 กับ 2 ต้อง "ไม่ใช่เรื่องเดียวกัน" ห้ามมีคำเดียวกันในหัวข้อ เช่น ห้ามให้ทั้งคู่เป็น "จัดหน้าสินค้า" หรือ "ปรับภาพ"
+- สัปดาห์ 3 ต้องแสดงว่าเป็น checkpoint ที่ใช้ data จริงตัดสินใจ ไม่ใช่แค่ "ทำเพิ่ม"
+- สัปดาห์ 4 ต้องบอกว่าเดือนหน้าควรทำอะไรต่อ ไม่จบแบบเปิด
+
+
 ให้ตอบตาม schema นี้เท่านั้น:
 {
   "web_summary": {
@@ -4861,10 +4888,10 @@ function normalizeStep2Payload(payload) {
         tag: String(item?.tag || (idx === 2 ? 'ทำได้เลย' : 'impact สูง')).trim()
       })),
       plan_30_days: (plan.length ? plan : [
-        { week: 'สัปดาห์ 1', title: 'จัดหน้าสินค้าให้ชัดขึ้น', detail: 'เริ่มจาก 5 ภาพแรกของสินค้าที่อยากดันและข้อความที่ลูกค้าเห็นก่อนตัดสินใจ' },
-        { week: 'สัปดาห์ 2', title: 'จัดข้อเสนอให้ลูกค้าเห็นความคุ้ม', detail: 'ปรับโปรหรือ bundle ให้ช่วยปิดการขายโดยไม่ทำให้กำไรหายเกินไป' },
-        { week: 'สัปดาห์ 3', title: 'เก็บคำถามจริงจากลูกค้า', detail: 'เอาคำถามที่เจอบ่อยมาปรับในภาพและรายละเอียดสินค้าเพื่อลดการลังเล' },
-        { week: 'สัปดาห์ 4', title: 'ต่อยอดด้วยเครื่องมือที่เหมาะ', detail: 'ค่อยใช้แคมเปญหรือโปรกับสินค้าที่หน้าพร้อมแล้วจริง ๆ' }
+        { week: 'สัปดาห์ 1', title: 'Foundation Prep — เตรียมพร้อมทุกอย่างในครั้งเดียว', detail: 'ปรับ 5 ภาพแรก + รายละเอียดสินค้า + ตั้งโปร/คูปอง ให้สินค้าที่อยากดันพร้อม launch ได้ในสัปดาห์เดียว' },
+        { week: 'สัปดาห์ 2', title: 'Launch & Drive Traffic', detail: 'เริ่มยิง Ads + เปิดโปรกระตุ้นการตัดสินใจ + ลง Shopee Video เพื่อดึง traffic ใหม่หลัง foundation พร้อม' },
+        { week: 'สัปดาห์ 3', title: 'Review & Double Down', detail: 'เช็กหลังบ้าน (Traffic / CTR / Conversion / ROI ของ Ads) ตัวที่ performance ดี เพิ่มงบ / ถ้า Video ไปดี เริ่ม Affiliate KOL ส่งสินค้าฟรีรีวิวต่อยอด content' },
+        { week: 'สัปดาห์ 4', title: 'Evaluate & Set Direction', detail: 'สรุปผล 30 วัน เปรียบเทียบ ROI ระหว่างช่องทาง กำหนดทิศทางเดือนหน้าว่าควร double down อะไรและตัดอะไร' }
       ]).map((item, idx) => ({
         week: String(item?.week || `สัปดาห์ ${idx + 1}`).trim(),
         title: String(item?.title || `แผนสัปดาห์ ${idx + 1}`).trim(),
@@ -4941,11 +4968,11 @@ function renderFirstWeaknessOnly(text) {
         <span style="background:var(--brand);color:white;border-radius:50%;min-width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">1</span>
         <strong style="color:var(--brand);font-size:15px;line-height:1.4;">${escapeHTML(title)}</strong>
       </div>
-      ${body.map(line => `<p style="font-size:14px;line-height:1.8;color:var(--text2);margin:0 0 4px 32px;">${escapeHTML(line)}</p>`).join('')}
+      ${body.map(line => `<p style="margin:0 0 6px 32px;">${escapeHTML(line)}</p>`).join('')}
     `;
   }
 
-  return `<p style="font-size:14px;line-height:1.8;color:var(--text2);">${escapeHTML(lines[0] || '-')}</p>`;
+  return `<p>${escapeHTML(lines[0] || '-')}</p>`;
 }
 
 function formatQuickActionPlan(text) {
@@ -5259,8 +5286,8 @@ renderQuickResult = async function() {
         <div class="text-block">
           <h3>จุดเด่นของร้านที่ต้องรักษาไว้</h3>
           ${strengthLines.length > 0
-            ? `<ul class="strength-list" style="font-size:14px;line-height:1.8;">${strengthLines.map(s=>`<li>${escapeHTML(s)}</li>`).join('')}</ul>`
-            : `<p style="font-size:14px;line-height:1.8;">${escapeHTML(strengths)}</p>`
+            ? `<ul class="strength-list">${strengthLines.map(s=>`<li>${escapeHTML(s)}</li>`).join('')}</ul>`
+            : `<p>${escapeHTML(strengths)}</p>`
           }
         </div>
 
@@ -5507,11 +5534,11 @@ renderFinalPreview = async function() {
               <p style="margin:6px 0 0;font-size:12px;line-height:1.66;color:var(--text2);">ถ้าไม่สะดวกเปิดอีเมล สามารถ Add LINE เพื่อรับไฟล์บนมือถือได้เช่นกัน</p>
             </div>
             <div class="premium-light-card" style="display:flex;flex-direction:column;">
-              <p style="margin:0;font-size:12px;line-height:1.66;color:var(--text2);">สามารถย้อนดูผลรอบแรกหรือเริ่มใหม่ กดปุ่มด้านล่างได้เลย<br>*หากกปดปุ่มเริ่มใหม่ จะเป็นการทำใหม่ตั้งแต่ต้น ผลวิเคราะห์ของรอบนี้จะถูกบันทึกและจัดส่งไปในอีเมลล์เท่านั้น</br></p>
-              <div style="display:grid;gap:10px;margin-top:auto;">
+              <div style="display:grid;gap:10px;">
                 <button class="nav-btn" id="backToQuickResultBtn">กลับไปดูผลวิเคราะห์ร้านฉบับพื้นฐาน</button>
                 <button class="nav-btn primary" id="restartFinalBtn">เริ่มใหม่ตั้งแต่ต้น</button>
               </div>
+              <p style="margin:12px 0 0;font-size:12px;line-height:1.66;color:var(--text2);">สามารถย้อนดูผลรอบแรกหรือเริ่มใหม่ กดปุ่มด้านบนได้เลย<br><span style="color:var(--text3);">*หากกดปุ่มเริ่มใหม่ จะเป็นการทำใหม่ตั้งแต่ต้น ผลวิเคราะห์ของรอบนี้จะถูกบันทึกและจัดส่งไปในอีเมลเท่านั้น</span></p>
             </div>
           </div>
         </div>
