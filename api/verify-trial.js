@@ -2,7 +2,7 @@
 // /api/verify-trial
 // ------------------------------------------------------------
 // Called by the frontend on page load when the URL contains a
-// trial flag (e.g. ?trial=1). Answers two questions:
+// referral code (e.g. ?ref=earlybird). Answers two questions:
 //   1) Is the trial currently open? (env flag + budget)
 //   2) Has THIS visitor already used their free seat?
 //
