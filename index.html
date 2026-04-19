@@ -4795,16 +4795,34 @@ ${SELF_CHECK}
 - สัปดาห์ 3 ต้องแสดงว่าเป็น checkpoint ที่ใช้ data จริงตัดสินใจ ไม่ใช่แค่ "ทำเพิ่ม"
 - สัปดาห์ 4 ต้องบอกว่าเดือนหน้าควรทำอะไรต่อ ไม่จบแบบเปิด
 
+กฎ Focus Headlines (สำคัญมาก — ทำให้รายงานไม่น่าเบื่อ):
+- หัวข้อของ focus แต่ละอันต้องเขียนแบบ "consequence-oriented" ไม่ใช่แค่บอกอาการ
+  ❌ ห้าม: "คนเห็นยางลบแล้วไม่ค่อยกดเข้า" (นี่แค่อาการ)
+  ✅ ควร: "ทุก 100 คนเห็นสินค้า กดเข้าแค่ 3 คน = เสียโอกาสปิดการขาย 97%" หรือ "CTR ต่ำทำให้ Ads ที่จะยิงไม่คุ้ม"
+- ถ้ามีข้อมูลตัวเลขหรือสัดส่วนให้ใช้ ถ้าไม่มีให้ใช้คำที่ชัดเจนว่า "กระทบยังไง" ไม่ใช่แค่ "มีปัญหาอะไร"
+- headline ต้องทำให้เจ้าของร้านรู้สึก "มันเกิดกับร้านฉันจริง ๆ" ไม่ใช่คำแนะนำทั่วไป
+
+กฎ Symptoms (อาการที่ร้านน่าจะเห็น — บังคับทุก focus):
+- ทุก focus area ต้องมี "symptoms" เป็น array 2-4 ข้อ เขียนแบบ checklist ที่ร้านจะรู้สึก "ใช่เลย"
+- ตัวอย่าง: ["Impressions เยอะ แต่คลิกน้อย", "คนเข้าร้านเยอะ แต่ไม่ซื้อ", "ยิง Ads แล้ว cost ต่อ order สูง"]
+- ห้ามเขียนกว้าง ๆ เช่น "ยอดไม่ขึ้น" — ต้อง specific พอให้ร้านเอาไป check list ได้จริง
+
+กฎ Benchmark (อ้างอิงเทียบตลาด — บังคับทุก focus):
+- ทุก focus area ต้องมี "benchmark" เป็นประโยคเดียว อ้างอิงเทียบกับร้าน top-performing ในหมวดเดียวกัน
+- ถ้าไม่มีข้อมูลเฉพาะ ใช้ range เช่น "ร้านในหมวดนี้ที่ทำได้ดี CTR เฉลี่ย 3-5%" หรือ "ร้านที่โตจาก 50 → 100+ ออเดอร์มักใช้เครื่องมืออย่างน้อย 3 ช่องทาง"
+- ประโยคต้อง "ให้บริบท" ไม่ใช่แค่ตัวเลขลอย ต้องบอกว่า "ของร้านคุณอยู่ที่ไหนเมื่อเทียบกับเกณฑ์นี้"
+- ถ้าไม่สามารถระบุ benchmark ที่แม่นยำได้ ให้ใช้วิธีเปรียบเทียบเชิงพฤติกรรม เช่น "ร้านที่ผ่านจุดนี้แล้วมักมี [พฤติกรรม X, Y, Z]"
+
 
 ให้ตอบตาม schema นี้เท่านั้น:
 {
   "web_summary": {
-    "headline": "สรุปสั้น 1-2 ประโยคสำหรับหน้าเว็บ",
+    "headline": "สรุปสั้น 1-2 ประโยคสำหรับหน้าเว็บ แบบ consequence-oriented",
     "main_problem": "ปัญหาหลักตอนนี้ 1 ย่อหน้าสั้น",
     "focus_3": [
-      {"title": "หัวข้อ", "desc": "คำอธิบายสั้น 1-2 ประโยค", "tag": "impact สูง"},
-      {"title": "หัวข้อ", "desc": "คำอธิบายสั้น 1-2 ประโยค", "tag": "impact สูง"},
-      {"title": "หัวข้อ", "desc": "คำอธิบายสั้น 1-2 ประโยค", "tag": "ทำได้เลย"}
+      {"title": "หัวข้อ consequence-oriented", "desc": "คำอธิบายสั้น 1-2 ประโยค", "symptoms": ["อาการที่ร้านน่าจะเห็น 1", "อาการ 2", "อาการ 3"], "benchmark": "เทียบกับเกณฑ์ร้าน top performer 1 ประโยค", "tag": "impact สูง"},
+      {"title": "หัวข้อ consequence-oriented", "desc": "คำอธิบายสั้น 1-2 ประโยค", "symptoms": ["...", "...", "..."], "benchmark": "...", "tag": "impact สูง"},
+      {"title": "หัวข้อ consequence-oriented", "desc": "คำอธิบายสั้น 1-2 ประโยค", "symptoms": ["...", "...", "..."], "benchmark": "...", "tag": "ทำได้เลย"}
     ],
     "plan_30_days": [
       {"week": "สัปดาห์ 1", "title": "หัวข้อสั้น", "detail": "คำอธิบายสั้น"},
@@ -4821,9 +4839,9 @@ ${SELF_CHECK}
   "full_report": {
     "overview": "ภาพรวมร้านแบบละเอียดกว่า web_summary",
     "focus_areas": [
-      {"title": "หัวข้อ", "why": "เหตุผล", "steps": ["step 1", "step 2", "step 3"], "expected_result": "ผลที่คาด"},
-      {"title": "หัวข้อ", "why": "เหตุผล", "steps": ["step 1", "step 2", "step 3"], "expected_result": "ผลที่คาด"},
-      {"title": "หัวข้อ", "why": "เหตุผล", "steps": ["step 1", "step 2", "step 3"], "expected_result": "ผลที่คาด"}
+      {"title": "หัวข้อ consequence-oriented", "why": "เหตุผลเชิงวิเคราะห์", "symptoms": ["อาการที่ร้านน่าจะเห็น 1", "อาการ 2", "อาการ 3"], "benchmark": "เทียบกับเกณฑ์ร้าน top performer 1 ประโยค", "steps": ["step 1", "step 2", "step 3"], "expected_result": "ผลที่คาด"},
+      {"title": "หัวข้อ consequence-oriented", "why": "...", "symptoms": ["...", "...", "..."], "benchmark": "...", "steps": ["...", "...", "..."], "expected_result": "..."},
+      {"title": "หัวข้อ consequence-oriented", "why": "...", "symptoms": ["...", "...", "..."], "benchmark": "...", "steps": ["...", "...", "..."], "expected_result": "..."}
     ],
     "plan_30_days": [
       {"week": "สัปดาห์ 1", "title": "หัวข้อ", "details": ["...", "...", "..."]},
@@ -4880,12 +4898,14 @@ function normalizeStep2Payload(payload) {
       headline: String(web.headline || 'ร้านนี้ยังมีโอกาสโตบน Shopee ต่อได้ แต่ตอนนี้ยังต้องแก้ปัญหาหลักให้ตรงจุด').trim(),
       main_problem: String(web.main_problem || 'ตอนนี้ลูกค้าเริ่มเห็นสินค้าแล้ว แต่ยังไม่เห็นเหตุผลชัดพอว่าทำไมควรซื้อร้านนี้แทนร้านอื่น').trim(),
       focus_3: (focus.length ? focus : [
-        { title: 'ทำให้สินค้าที่อยากดันมีเหตุผลให้ซื้อชัดขึ้น', desc: 'ปรับภาพหน้าสินค้าและจุดขายให้ลูกค้าเข้าใจได้เร็วขึ้นตั้งแต่ก่อนเลื่อนอ่านรายละเอียด', tag: 'impact สูง' },
-        { title: 'จัดการเรื่องความคุ้มค่าให้ชัด', desc: 'ทำให้ลูกค้าเห็นความคุ้มจากข้อมูลสินค้าและข้อเสนอ ไม่ใช่ปล่อยให้เทียบกันที่ราคาอย่างเดียว', tag: 'impact สูง' },
-        { title: 'ค่อยใช้โปรกับสินค้าที่พร้อมก่อน', desc: 'เริ่มจากตัวที่หน้าสินค้าพร้อมและมีโอกาสปิดการขายได้ก่อน แล้วค่อยขยาย', tag: 'ทำได้เลย' }
+        { title: 'CTR ต่ำ = เสียโอกาสปิดการขายก่อนถึงหน้าสินค้า', desc: 'ปรับภาพหน้าสินค้าและจุดขายให้ลูกค้าเข้าใจได้เร็วขึ้นตั้งแต่ก่อนเลื่อนอ่านรายละเอียด', symptoms: ['Impressions เยอะ แต่คลิกน้อย', 'คนผ่านร้านเยอะ แต่ไม่เข้าดู', 'ยิง Ads แล้ว cost ต่อ click สูง'], benchmark: 'ร้านในหมวดนี้ที่ทำได้ดีมักมี CTR เฉลี่ย 3-5%', tag: 'impact สูง' },
+        { title: 'จุดขายไม่ชัด = ต้องพึ่งโปรเกินไปจนกำไรหด', desc: 'ทำให้ลูกค้าเห็นความคุ้มจากข้อมูลสินค้าและข้อเสนอ ไม่ใช่ปล่อยให้เทียบกันที่ราคาอย่างเดียว', symptoms: ['คนถามราคาเยอะ แต่ไม่ซื้อ', 'ต้องลดราคาบ่อยถึงปิดการขายได้', 'ลูกค้าเทียบกับร้านอื่นแล้วเลือกที่ราคา'], benchmark: 'ร้าน top performer มักมีจุดขายเฉพาะ 1-2 ข้อที่ชัดเจนในทุกภาพและทุกคำอธิบาย', tag: 'impact สูง' },
+        { title: 'ขาดเครื่องมือดึง traffic ใหม่ = โตเพดานเร็ว', desc: 'เริ่มจากตัวที่หน้าสินค้าพร้อมและมีโอกาสปิดการขายได้ก่อน แล้วค่อยขยาย', symptoms: ['ยอดขึ้นลงตามโปรอย่างเดียว', 'ไม่มีลูกค้าใหม่จากช่องทาง organic', 'ใช้แต่คูปองร้าน ไม่เคยลง Ads/Video'], benchmark: 'ร้านที่โตจาก 50 → 100+ ออเดอร์มักใช้เครื่องมืออย่างน้อย 3 ช่องทาง ไม่ใช่แค่คูปอง', tag: 'ทำได้เลย' }
       ]).map((item, idx) => ({
         title: String(item?.title || `เรื่องที่ ${idx + 1}`).trim(),
         desc: String(item?.desc || '').trim(),
+        symptoms: (Array.isArray(item?.symptoms) ? item.symptoms : []).map(s => String(s || '').trim()).filter(Boolean).slice(0, 4),
+        benchmark: String(item?.benchmark || '').trim(),
         tag: String(item?.tag || (idx === 2 ? 'ทำได้เลย' : 'impact สูง')).trim()
       })),
       plan_30_days: (plan.length ? plan : [
@@ -5484,16 +5504,30 @@ renderFinalPreview = async function() {
             <div class="premium-light-card">
               <h3>3 เรื่องที่ควรโฟกัสก่อน</h3>
               <div style="display:grid;gap:10px;">
-                ${focus.map((item, idx) => `
+                ${focus.map((item, idx) => {
+                  const symptoms = Array.isArray(item.symptoms) ? item.symptoms.filter(Boolean).slice(0, 4) : [];
+                  const benchmark = String(item.benchmark || '').trim();
+                  return `
                   <div style="background:#fff8f3;border:1px solid #f6e2d7;border-radius:18px;padding:14px 15px;display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:12px;align-items:start;">
                     <div style="width:32px;height:32px;border-radius:10px;background:#faddcc;color:var(--brand-dark);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;">${idx + 1}</div>
                     <div style="min-width:0;">
                       <div style="margin:0 0 4px;font-size:14px;line-height:1.45;font-weight:700;color:var(--text);">${escapeHTML(item.title || '')}</div>
-                      <div style="margin:0;font-size:13px;line-height:1.62;color:var(--text2);">${escapeHTML(item.desc || '')}</div>
+                      <div style="margin:0 0 ${symptoms.length || benchmark ? '8px' : '0'};font-size:13px;line-height:1.62;color:var(--text2);">${escapeHTML(item.desc || '')}</div>
+                      ${symptoms.length ? `
+                        <div style="margin:6px 0 0;padding:8px 10px;background:#fff;border:1px dashed #f0c8ad;border-radius:10px;">
+                          <div style="font-size:10px;font-weight:700;letter-spacing:.04em;color:#b14e2a;margin-bottom:4px;">อาการที่ร้านน่าจะเห็น</div>
+                          <ul style="margin:0;padding-left:16px;font-size:12px;line-height:1.6;color:var(--text2);">
+                            ${symptoms.map(s => `<li>${escapeHTML(s)}</li>`).join('')}
+                          </ul>
+                        </div>` : ''}
+                      ${benchmark ? `
+                        <div style="margin:6px 0 0;padding:6px 10px;background:#f5faed;border-left:3px solid #7faa3e;border-radius:6px;">
+                          <span style="font-size:10px;font-weight:700;letter-spacing:.04em;color:#4f7f1b;">เทียบเกณฑ์ตลาด · </span><span style="font-size:12px;line-height:1.55;color:var(--text2);">${escapeHTML(benchmark)}</span>
+                        </div>` : ''}
                     </div>
                     <span style="font-size:11px;padding:4px 8px;border-radius:999px;background:${String(item.tag || '').includes('ทำได้') ? 'var(--green-bg)' : '#fff1e8'};color:${String(item.tag || '').includes('ทำได้') ? 'var(--green)' : '#d45c2e'};font-weight:700;white-space:nowrap;">${escapeHTML(item.tag || '')}</span>
                   </div>
-                `).join('')}
+                `;}).join('')}
               </div>
             </div>
             <div class="premium-light-card">
