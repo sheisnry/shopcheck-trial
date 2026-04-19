@@ -2798,7 +2798,7 @@ const state = {
   // --- Trial phase (FB group beta) ---
   fingerprint:null,
   trial:{
-    requested:false,    // user arrived with ?trial=1 in URL
+    requested:false,    // user arrived with ?ref=earlybird in URL
     open:false,         // server says trial window is open and has budget
     budgetLeft:0,
     alreadyClaimed:false, // this fingerprint/email already used its free Part 2
@@ -2815,8 +2815,9 @@ const state = {
 function scIsTrialRequested() {
   try {
     const p = new URLSearchParams(window.location.search);
-    const v = (p.get('trial') || '').toLowerCase();
-    return ['1','true','on','yes'].includes(v);
+    // Public flag: ?ref=earlybird (marketing referral code, not a dev flag)
+    const ref = (p.get('ref') || '').toLowerCase();
+    return ref === 'earlybird';
   } catch { return false; }
 }
 
@@ -5171,7 +5172,7 @@ renderQuickResult = async function() {
     const p = state.profile;
 
     // --- Trial phase UI variants ---------------------------------
-    // If ?trial=1 is on the URL and the server says the window is open,
+    // If ?ref=earlybird is on the URL and the server says the window is open,
     // swap the 599 paywall for a free-unlock button that calls
     // /api/claim-trial. If this device/email already used its free
     // seat, we keep the normal paywall but show a small notice.
