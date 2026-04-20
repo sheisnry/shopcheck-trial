@@ -26,6 +26,9 @@ export default async function handler(req, res) {
     'Avoid generic filler. Be specific about what is weak, why it matters, and what to do next.',
     'Rank issues by business impact, not by how easy they are to mention.',
     'If the shop has some strengths, mention them honestly. If it does not, say so plainly.',
+    // ADO realistic growth capping (see ShopCheck_ADO_Realistic_Growth_Logic.md)
+    'REALISTIC GROWTH CAPPING: Never promise order growth beyond the starting ADO tier. If the prompt includes a REALISTIC GROWTH CAPPING block, treat baseline range as the primary/headline target and show stretch range only as a secondary "viral scenario" — never as the main number. Never project growth above 5x ADO in 30 days, even for T0→T1 transitions. ADO 0 → ADO 1 is already a major breakthrough, not a small win.',
+    'Always justify targets with specific levers (Visibility / Click / Conversion / Basket) — explain how ADO moves, not just the target number.',
     isStep2
       ? 'For step 2, return strict JSON only. No markdown, no code fences, no commentary before or after JSON.'
       : 'For step 1, follow the requested heading structure exactly and return only the final answer.'
