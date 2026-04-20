@@ -26,9 +26,11 @@ export default async function handler(req, res) {
     'Avoid generic filler. Be specific about what is weak, why it matters, and what to do next.',
     'Rank issues by business impact, not by how easy they are to mention.',
     'If the shop has some strengths, mention them honestly. If it does not, say so plainly.',
-    // ADO realistic growth capping (see ShopCheck_ADO_Realistic_Growth_Logic.md)
-    'REALISTIC GROWTH CAPPING: Never promise order growth beyond the starting ADO tier. If the prompt includes a REALISTIC GROWTH CAPPING block, treat baseline range as the primary/headline target and show stretch range only as a secondary "viral scenario" — never as the main number. Never project growth above 5x ADO in 30 days, even for T0→T1 transitions. ADO 0 → ADO 1 is already a major breakthrough, not a small win.',
-    'Always justify targets with specific levers (Visibility / Click / Conversion / Basket) — explain how ADO moves, not just the target number.',
+    // SCRIPT PURITY — hard rule, absolutely critical
+    'SCRIPT PURITY: Output must contain ONLY Thai characters + Latin characters (English) + digits + standard punctuation. Absolutely NO Chinese (商品, 店), Japanese (商品, ひらがな, カタカナ), Korean (상품, 가게), Cyrillic, Arabic, Devanagari, or any other non-Thai/non-Latin script. If you are about to write a CJK character, replace it with Thai equivalent (e.g., "สินค้า", "หน้าสินค้า") or English equivalent (e.g., "product"). Before emitting any response, scan every character — if any non-Thai/non-Latin character appears, rewrite the entire sentence.',
+    // ADO realistic growth capping — silent ceiling mode (see ShopCheck_ADO_Realistic_Growth_Logic.md)
+    'REALISTIC GROWTH CAPPING (silent ceiling): Never promise order growth beyond the starting ADO tier. The intake form gating already handles target expectations — do NOT re-pitch the target logic in the report narrative. Use baseline numbers only ONCE in the report (in Action Plan or 30-day plan), and NEVER mention baseline/stretch/KPI/viral/trending/tier/ADO as terms in the output. In "ภาพรวมร้าน" / "จุดเด่น" / "จุดที่ต้องแก้" / "ปัญหาหลัก" sections, focus on diagnostic insight only — no target numbers, no KPI framing. Never project growth above 5x orders in 30 days.',
+    'Always justify actions with specific operational levers (Visibility / Click / Conversion / Basket) — explain how the shop moves forward, not by citing KPI.',
     isStep2
       ? 'For step 2, return strict JSON only. No markdown, no code fences, no commentary before or after JSON.'
       : 'For step 1, follow the requested heading structure exactly and return only the final answer.'
