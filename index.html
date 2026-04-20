@@ -1431,6 +1431,96 @@ body.result-active .main-stage {
   line-height:1.5;
   text-align:left;
 }
+/* Reality Check modal (ADO gate) */
+.reality-modal-backdrop {
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,0.55);
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
+  z-index:9999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  animation:realityFadeIn .18s ease-out;
+}
+@keyframes realityFadeIn { from { opacity:0 } to { opacity:1 } }
+.reality-modal {
+  background:#fff;
+  border-radius:20px;
+  max-width:520px;
+  width:100%;
+  padding:28px 26px;
+  box-shadow:0 28px 80px rgba(15,23,42,.28);
+  border-left:6px solid #EE4D2D;
+  font-family:inherit;
+}
+.reality-kicker {
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.12em;
+  color:#EE4D2D;
+  margin-bottom:8px;
+}
+.reality-title {
+  font-family:'DM Serif Display',serif;
+  font-size:22px;
+  line-height:1.25;
+  color:#0F172A;
+  margin-bottom:12px;
+}
+.reality-body {
+  font-size:14px;
+  line-height:1.7;
+  color:#334155;
+  margin-bottom:16px;
+}
+.reality-pill {
+  display:inline-block;
+  background:#FFF7ED;
+  color:#9A3412;
+  padding:8px 12px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:700;
+  margin-bottom:18px;
+}
+.reality-actions {
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.reality-btn {
+  border:none;
+  border-radius:12px;
+  padding:13px 18px;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+  transition:transform .1s ease, background .15s ease;
+  font-family:inherit;
+}
+.reality-btn:hover { transform:translateY(-1px) }
+.reality-btn-primary {
+  background:#EE4D2D;
+  color:#fff;
+}
+.reality-btn-primary:hover { background:#d9431f }
+.reality-btn-ghost {
+  background:#fff;
+  color:#475569;
+  border:1px solid #E2E8F0;
+}
+.reality-btn-ghost:hover { background:#F8FAFC; color:#0F172A }
+.reality-btn-link {
+  background:transparent;
+  color:#64748B;
+  font-weight:600;
+  padding:8px;
+  font-size:13px;
+}
+.reality-btn-link:hover { color:#0F172A }
 .btn-unlock {
   background:linear-gradient(135deg, var(--brand), #ff7a43);
   color:white;
@@ -2783,7 +2873,7 @@ const state = {
   quickAnswers:{},
   deepAnswers:{},
   profile:{
-    shopName:'', shopCat:'', heroProduct:'', monthlyOrders:'', targetOrders:'', mainProblem:''
+    shopName:'', shopCat:'', heroProduct:'', monthlyOrders:'', targetOrders:'', mainProblem:'', viralScenario:false
   },
   quickType:null,
   paymentMethod:'promptpay',
@@ -3207,10 +3297,81 @@ function renderProfileStep() {
 
   document.getElementById('continueFromProfile').addEventListener('click', () => {
     if (!syncProfile(true)) return;
+    const advice = getTargetAdvice();
+    if (advice && advice.blockLevel === 'BLOCK' && !state.profile.viralScenario) {
+      showRealityCheckModal(advice, () => {
+        // proceed callback — user either accepted baseline or confirmed viral
+        state.phase = 'quick-question';
+        state.current = 0;
+        renderCurrent();
+        scrollStageTop();
+      });
+      return;
+    }
     state.phase = 'quick-question';
     state.current = 0;
     renderCurrent();
     scrollStageTop();
+  });
+}
+
+// Reality Check modal (ADO gate)
+// Shows when starting tier (T0/T1) vs target is mismatched
+function showRealityCheckModal(advice, onProceed) {
+  const existing = document.getElementById('realityCheckBackdrop');
+  if (existing) existing.remove();
+
+  const suggestedTargetOption = '31-60 ออเดอร์'; // safer fallback for T0/T1
+  const baselineText = advice.baselineRange.text;
+  const currentLabel = advice.currentLabel;
+  const chosenTarget = state.profile.targetOrders || '';
+
+  const backdrop = document.createElement('div');
+  backdrop.id = 'realityCheckBackdrop';
+  backdrop.className = 'reality-modal-backdrop';
+  backdrop.innerHTML = `
+    <div class="reality-modal" role="dialog" aria-modal="true" aria-labelledby="realityTitle">
+      <div class="reality-kicker">REALITY CHECK</div>
+      <div id="realityTitle" class="reality-title">มาตั้งเป้าหมายที่โตจริงใน 30 วันก่อนนะคะ</div>
+      <div class="reality-pill">เริ่มจาก ${escapeHTML(currentLabel)} → เป้า ${escapeHTML(chosenTarget)}</div>
+      <div class="reality-body">
+        ระบบตั้งให้ร้านที่เริ่มจาก <strong>${escapeHTML(currentLabel)}</strong> โตเป็น <strong>${escapeHTML(baselineText)}</strong> ใน 30 วัน ถือเป็นเป้าที่ทำได้จริง (เก่งแล้วค่ะ!)<br><br>
+        เป้า <strong>${escapeHTML(chosenTarget)}</strong> เป็นไปได้ถ้าสินค้าเข้า trending / viral — เก็บไว้เป็น bonus scenario จะดีกว่านะคะ
+      </div>
+      <div class="reality-actions">
+        <button class="reality-btn reality-btn-primary" id="realityUseBaseline">ใช้เป้า baseline ${escapeHTML(baselineText)} (แนะนำ)</button>
+        <button class="reality-btn reality-btn-ghost" id="realityConfirmViral">ยืนยันเป้า ${escapeHTML(chosenTarget)} (scenario: viral)</button>
+        <button class="reality-btn reality-btn-link" id="realityCancel">แก้ตัวเลขเอง</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(backdrop);
+
+  document.getElementById('realityUseBaseline').addEventListener('click', () => {
+    state.profile.targetOrders = suggestedTargetOption;
+    state.profile.viralScenario = false;
+    const sel = document.getElementById('target-orders');
+    if (sel) sel.value = suggestedTargetOption;
+    backdrop.remove();
+    if (typeof onProceed === 'function') onProceed();
+  });
+
+  document.getElementById('realityConfirmViral').addEventListener('click', () => {
+    state.profile.viralScenario = true;
+    backdrop.remove();
+    if (typeof onProceed === 'function') onProceed();
+  });
+
+  document.getElementById('realityCancel').addEventListener('click', () => {
+    backdrop.remove();
+    const sel = document.getElementById('target-orders');
+    if (sel) sel.focus();
+  });
+
+  backdrop.addEventListener('click', (e) => {
+    if (e.target === backdrop) {
+      backdrop.remove();
+    }
   });
 }
 
@@ -3325,33 +3486,79 @@ function getArchetype() {
   };
 }
 
+// ADO (Average Daily Orders) realistic growth framework
+// Source of truth: ShopCheck_ADO_Realistic_Growth_Logic.md §1
+const ADO_TIER_MAP = {
+  'ยังไม่มีออเดอร์เลย': {
+    tier: 'T0',
+    currentLabel: '0 orders',
+    baseline: { min: 10, max: 30, adoMin: 0.3, adoMax: 1, text: '10–30 ออเดอร์' },
+    stretch:  { min: 60, max: 90, adoMin: 2,   adoMax: 3, text: '60–90 ออเดอร์' }
+  },
+  '1–10 ออเดอร์': {
+    tier: 'T1',
+    currentLabel: '1–10 orders',
+    baseline: { min: 30, max: 45, adoMin: 1, adoMax: 1.5, text: '30–45 ออเดอร์' },
+    stretch:  { min: 60, max: 90, adoMin: 2, adoMax: 3,   text: '60–90 ออเดอร์' }
+  },
+  '11–50 ออเดอร์': {
+    tier: 'T2',
+    currentLabel: '11–50 orders',
+    baseline: { min: 60,  max: 90,  adoMin: 2, adoMax: 3, text: '60–90 ออเดอร์' },
+    stretch:  { min: 100, max: 150, adoMin: 3, adoMax: 5, text: '100–150 ออเดอร์' }
+  },
+  '51–100 ออเดอร์': {
+    tier: 'T3',
+    currentLabel: '51–100 orders',
+    baseline: { min: 90,  max: 120, adoMin: 3,   adoMax: 4, text: '90–120 ออเดอร์' },
+    stretch:  { min: 130, max: 180, adoMin: 4.5, adoMax: 6, text: '130–180 ออเดอร์' }
+  }
+};
+
+const TARGET_MAX_MAP = {
+  '10-30 ออเดอร์': 30,
+  '31-60 ออเดอร์': 60,
+  '61-100 ออเดอร์': 100,
+  'มากกว่า 100 ออเดอร์': 150
+};
+
 function getTargetAdvice() {
   const now = state.profile.monthlyOrders || '';
   const target = state.profile.targetOrders || '';
-  const map = {
-    'ยังไม่มีออเดอร์เลย': { max:15, text:'5–15 ออเดอร์' },
-    '1–10 ออเดอร์': { max:30, text:'15–30 ออเดอร์' },
-    '11–50 ออเดอร์': { max:60, text:'30–60 ออเดอร์' },
-    '51–100 ออเดอร์': { max:120, text:'70–120 ออเดอร์' }
-  };
-  const targetMaxMap = {
-    '10-30 ออเดอร์': 30,
-    '31-60 ออเดอร์': 60,
-    '61-100 ออเดอร์': 100,
-    'มากกว่า 100 ออเดอร์': 999
-  };
-  const nowInfo = map[now];
-  const targetMax = targetMaxMap[target];
-  if (!nowInfo || !targetMax) return null;
-  if (targetMax > nowInfo.max) {
-    return {
-      realistic:false,
-      text:`เป้าที่ตั้งไว้ยังไกลเกินสำหรับ 30 วันแรก รอบนี้ขอพาให้ถึง ${nowInfo.text} ก่อน แล้วค่อยขยับรอบถัดไป`
-    };
+  const tierInfo = ADO_TIER_MAP[now];
+  const targetMax = TARGET_MAX_MAP[target];
+  if (!tierInfo || !targetMax) return null;
+
+  const baselineMax = tierInfo.baseline.max;
+  const viralScenario = !!state.profile.viralScenario;
+
+  // Hard gate: T0/T1 starters (≤10 orders) aiming >60 orders
+  const isLowStart = tierInfo.tier === 'T0' || tierInfo.tier === 'T1';
+  const isHardGate = isLowStart && targetMax > 60;
+
+  let blockLevel = 'OK';
+  let text = '';
+
+  if (isHardGate && !viralScenario) {
+    blockLevel = 'BLOCK';
+    text = `ตอนนี้ร้านอยู่ที่ ${tierInfo.currentLabel} ตั้งเป้า ${target} ใน 30 วันเป็นไปได้ยาก (ต้องให้สินค้าเข้า viral) แนะนำเริ่มที่ baseline ${tierInfo.baseline.text} ก่อน แล้วค่อยไปต่อเดือนถัดไป`;
+  } else if (targetMax > baselineMax * 1.3) {
+    blockLevel = 'WARN';
+    text = `เป้า ${target} สูงกว่า baseline (${tierInfo.baseline.text}) ของ tier นี้ รายงานจะนำเสนอ 2 เส้น: baseline (realistic) + stretch (viral scenario)`;
+  } else {
+    blockLevel = 'OK';
+    text = `เป้าที่ตั้งไว้อยู่ในช่วงที่ทำได้จริงสำหรับ 30 วันนี้ เน้นทำตามลำดับ ไม่กระจายแรงเกินไป`;
   }
+
   return {
-    realistic:true,
-    text:'เป้าที่ตั้งไว้ยังอยู่ในช่วงที่พอไล่ได้ ถ้าทำตามลำดับและไม่กระจายแรงเกินไป'
+    tier: tierInfo.tier,
+    currentLabel: tierInfo.currentLabel,
+    baselineRange: tierInfo.baseline,
+    stretchRange: tierInfo.stretch,
+    blockLevel,            // 'BLOCK' | 'WARN' | 'OK'
+    viralScenario,
+    realistic: blockLevel !== 'BLOCK',
+    text
   };
 }
 
@@ -4419,7 +4626,7 @@ function restartAll() {
   state._step2AI = '';
   state._step1Prompt = '';
   state._step2Prompt = '';
-  state.profile = { shopName:'', shopCat:'', heroProduct:'', monthlyOrders:'', targetOrders:'', mainProblem:'' };
+  state.profile = { shopName:'', shopCat:'', heroProduct:'', monthlyOrders:'', targetOrders:'', mainProblem:'', viralScenario:false };
   document.body.classList.remove('result-active');
   renderCurrent();
   scrollStageTop();
@@ -4632,6 +4839,31 @@ function getCategorySpecificStep2Rules(shopCat, heroProduct) {
   return '';
 }
 
+// Build ADO realistic-growth block for AI prompts
+// Keeps Claude/GPT from promising unrealistic targets (e.g., 0 → 100+ in 30 days)
+function buildADOContextBlock() {
+  const advice = getTargetAdvice();
+  if (!advice) return '';
+  const viralNote = advice.viralScenario
+    ? 'ลูกค้ายืนยันว่าต้องการ scenario: VIRAL — พูดถึงเป้า stretch ได้ชัดเจน แต่ต้องแนบเงื่อนไขว่าต้องให้สินค้าเข้า trending ด้วย'
+    : 'ลูกค้าไม่ได้เลือก viral scenario — ห้ามนำเสนอ stretch target เป็น headline';
+  return `
+REALISTIC GROWTH CAPPING (mandatory):
+- Starting tier: ${advice.tier} (${advice.currentLabel})
+- Baseline target (primary, realistic 30 วัน): ${advice.baselineRange.text} (ADO ${advice.baselineRange.adoMin}–${advice.baselineRange.adoMax})
+- Stretch target (secondary, viral scenario): ${advice.stretchRange.text} (ADO ${advice.stretchRange.adoMin}–${advice.stretchRange.adoMax})
+- Block level: ${advice.blockLevel}
+- ${viralNote}
+
+กฎในการเขียนเป้าและตัวเลขในรายงาน:
+1. primary target = baseline range เสมอ (ห้ามเขียนเป็นตัวเลขเดี่ยว ต้องเขียนเป็นช่วง)
+2. stretch target ให้แสดงเป็น secondary scenario เท่านั้น และต้องระบุชัดว่า "ถ้าสินค้าเข้า trending / ไวรัล"
+3. ถ้าลูกค้าตั้ง target สูงกว่า baseline ceiling ของ tier นี้ — ห้ามเขียนตามตัวเลขลูกค้า ให้เขียน baseline range เป็น headline แล้วเสริมประโยคเดียวว่า "ตัวเลข ${advice.currentLabel === '0 orders' || advice.currentLabel === '1–10 orders' ? 'ที่ตั้งไว้' : 'นี้'} เป็นไปได้ถ้าสินค้าเข้า trending — แนะนำยึด baseline ${advice.baselineRange.text} เป็น KPI หลัก"
+4. ห้ามประมาณการโตเกิน 5x ADO ใน 30 วัน แม้ว่าจะเริ่มจาก tier T0 → T1 (ADO 0 → ADO 1 ถือเป็น major breakthrough แล้ว)
+5. target ทุกตัวต้อง justify ด้วย lever เฉพาะ (Visibility / Click / Conversion / Basket) — ไม่ใช่แค่บอกเป้า แต่ต้องบอกว่า ADO จะขยับได้ยังไง
+`;
+}
+
 function buildStep1Prompt() {
   const p = state.profile;
   const answers = QUICK_QUESTIONS.map(q => {
@@ -4651,6 +4883,7 @@ function buildStep1Prompt() {
 - ออเดอร์ปัจจุบัน: ${p.monthlyOrders || 'ไม่ระบุ'}
 - เป้าหมาย: ${p.targetOrders || 'ไม่ระบุ'}
 - ปัญหาหลักที่รู้สึก: ${p.mainProblem || 'ไม่ระบุ'}
+${buildADOContextBlock()}
 
 คะแนน: ${typeof totalScore === 'number' ? totalScore.toFixed(1) : totalScore}/${formatScore(getQuickMaxScore())}
 
@@ -4751,6 +4984,7 @@ function buildStep2Prompt() {
 - ออเดอร์ต่อเดือนตอนนี้: ${p.monthlyOrders || "ไม่ได้ระบุ"}
 - เป้าหมายออเดอร์: ${p.targetOrders || "ไม่ได้ระบุ"}
 - ปัญหาหลักที่เจ้าของร้านรู้สึก: ${p.mainProblem || "ไม่ได้ระบุ"}
+${buildADOContextBlock()}
 
 ผลจาก Part 1:
 - คะแนนรวม: ${totalScore}/8
