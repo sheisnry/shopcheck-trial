@@ -4839,6 +4839,45 @@ function getCategorySpecificStep2Rules(shopCat, heroProduct) {
   return '';
 }
 
+const PLATFORM_LEVER_POLICY = `
+PLATFORM PUSH LEVER — ส่งด่วน / ส่งไว (Shopee Fast Delivery)
+
+Context: ปี 2024–ปัจจุบัน Shopee push ฟีเจอร์ "ส่งด่วน / ส่งไว" หนักที่สุด (คลื่นก่อนหน้าคือ Live 2022-23 และ Video 2023-24). Voucher ส่งฟรี + traffic boost ส่วนใหญ่ไหลเข้าร้านที่เปิด fast delivery. ผู้ซื้อ BKK ใช้ filter "ส่งเร็ว" ~35-40% ของ search.
+
+เมื่อไหร่ให้แนะนำให้ seller เปิด ส่งด่วน/ส่งไว:
+
+1) CATEGORY FIT GATE (บังคับเช็คก่อน):
+   - ✅ STRONG FIT (แนะนำได้เต็มปาก): ของใช้ประจำวัน, เครื่องเขียน, ของใช้ในบ้าน, อาหาร/ขนม/เครื่องดื่ม (non-fresh), ความงาม (refill), สัตว์เลี้ยง, แม่และเด็ก, อาหารเสริม/ยาสามัญ
+   - ⚠️ CONDITIONAL (ต้อง AOV ≥ 200 บาท): แฟชั่น basics, อุปกรณ์เสริมอิเล็กทรอนิกส์เล็ก
+   - ❌ POOR FIT (ห้ามแนะนำ): เครื่องใช้ไฟฟ้าใหญ่, สินค้า custom, สินค้าเปราะบาง, AOV < 100 บาท
+
+2) OPERATIONAL READINESS GATE (บังคับเช็คก่อน):
+   - ถ้า q8 operational score < 3/5 → ห้ามแนะนำเปิดทันที. ให้แนะนำ "เตรียม SOP แพ็คของ + ทดสอบ ส่งไว ก่อน 2 สัปดาห์" แทน.
+   - ถ้า seller แพ็คเองคนเดียว + ยอด >30 orders/day → ห้ามแนะนำเปิด ส่งด่วน (จะแพ็คไม่ทัน โดน rating drop)
+
+3) POSITIONING RULE ในรายงาน:
+   - ไม่ใช่ top-3 priority โดย default — เป็น supporting lever
+   - ใส่ใน 30-day plan Week 2 หรือ Week 3 เท่านั้น (หลัง basic levers: รูป/ชื่อ/ads ลงตัวก่อน)
+   - ใส่เป็น top-3 priority ได้เฉพาะเมื่อ: category strong fit + operational readiness ≥ 4/5 + tier T2-T4
+   - Quick-win เท่านั้นถ้า seller เปิดไว้แล้วแต่ไม่ active
+
+4) APPROVED COURIERS (ต้องอ้างชื่อเหล่านี้เท่านั้น):
+   Flash Same Day, Kerry Same Day, J&T Express Premium, Shopee Xpress Same Day
+
+5) COPY RULES (ภาษาไทย):
+   ✅ "Shopee push ส่งด่วน/ส่งไว หนักมาก — voucher ส่งฟรีส่วนใหญ่วิ่งเข้าร้านที่เปิดไว้"
+   ✅ "หมวด [X] คือกลุ่มที่ผู้ซื้อกด filter ส่งเร็ว เยอะที่สุด"
+   ✅ "เปิดสัปดาห์ที่ 2 หลัง SOP แพ็คของลงตัว"
+   ✅ ต้องบอกเงื่อนไข: courier ที่รองรับ, SLA แพ็ค, penalty ถ้าแพ็คไม่ทัน (rating drop + ranking ลด)
+
+   ❌ ห้ามเขียน: "เปิด ส่งด่วน แล้วออเดอร์พุ่ง" (overpromise)
+   ❌ ห้ามเขียน: "ทุกร้านควรเปิด" (ไม่เช็ค fit)
+   ❌ ห้ามเขียน: "Shopee การันตีส่ง traffic ให้" (เท็จ)
+
+6) IF NOT APPLICABLE:
+   ถ้าหมวดสินค้าเข้าข่าย POOR FIT หรือ readiness ไม่ผ่าน → อย่าเขียนถึง ส่งด่วน/ส่งไว ในรายงานเลย. อย่าใส่เป็น "ทำได้ในอนาคต" แบบ filler.
+`;
+
 // Build ADO realistic-growth block for AI prompts
 // Keeps Claude/GPT from promising unrealistic targets (e.g., 0 → 100+ in 30 days)
 function buildADOContextBlock() {
@@ -4897,6 +4936,7 @@ ${answers}
 ${getCategoryAnalysisGuide()}
 
 ${LANGUAGE_POLICY}
+${PLATFORM_LEVER_POLICY}
 ${FORMAT_POLICY}
 ${SELF_CHECK}
 
@@ -5002,6 +5042,7 @@ ${getCategoryAnalysisGuide()}
 ${getCategorySpecificStep2Rules(p.shopCat, p.heroProduct)}
 
 ${LANGUAGE_POLICY}
+${PLATFORM_LEVER_POLICY}
 ${DIAGNOSIS_LOGIC}
 ${SELF_CHECK}
 
