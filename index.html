@@ -5160,6 +5160,38 @@ ${SELF_CHECK}
 - ประโยคต้อง "ให้บริบท" ไม่ใช่แค่ตัวเลขลอย ต้องบอกว่า "ของร้านคุณอยู่ที่ไหนเมื่อเทียบกับเกณฑ์นี้"
 - ถ้าไม่สามารถระบุ benchmark ที่แม่นยำได้ ให้ใช้วิธีเปรียบเทียบเชิงพฤติกรรม เช่น "ร้านที่ผ่านจุดนี้แล้วมักมี [พฤติกรรม X, Y, Z]"
 
+กฎ DB Schema & Canva Slot Mapping (สำคัญมาก — เขียนเพื่อ "ลงช่องได้ตรง"):
+ทุก field ใน full_report จะถูก export เป็น column ตรง ๆ ในตาราง shopcheck_full_report_readable_v1 แล้วใช้ผลิต Canva report 10 สไลด์แบบ manual
+แปลว่า: ถ้า field ใดยาวเกินหรือ format เพี้ยน จะทำให้สไลด์ล้น/ขาด และต้องมา re-edit ทุกร้าน
+ต้องเขียนทุก field ให้ "copy-paste ลง Canva ได้ทันที" ตามข้อจำกัดด้านล่าง
+
+Mapping: full_report field → DB column → Canva slot → ข้อจำกัด
+- full_report.overview → overview → สไลด์ 2 (ภาพรวมสำหรับผู้บริหาร) subtitle + สไลด์ 9 block "โจทย์" → 3-5 ประโยค เริ่มจากภาพรวมฉากใหญ่ → ระบุจุดแข็ง 1 จุด → ระบุจุดเจ็บหลัก 1 จุด ห้ามเริ่มด้วย "ร้านนี้..."​ ซ้ำทุกร้าน
+- full_report.focus_areas[0] → focus_1_* → สไลด์ 3 แถวบน (ชิปส้ม) + สไลด์ 9 block 2 บรรทัด 1 → ต้องเป็นปัญหาที่ impact สูงสุดและเร่งด่วนที่สุด (ห้ามเอาตัวง่ายขึ้นก่อน)
+- full_report.focus_areas[1] → focus_2_* → สไลด์ 3 แถวกลาง (ชิปเขียว) + สไลด์ 9 block 2 บรรทัด 2 → impact รอง แต่เป็น systemic issue ไม่ใช่ tactical
+- full_report.focus_areas[2] → focus_3_* → สไลด์ 3 แถวล่าง (ชิปฟ้า) + สไลด์ 9 block 2 บรรทัด 3 → "ทำได้เลย" ต้องเป็น low-hanging fruit ที่ร้านเริ่มทำสัปดาห์นี้ได้
+- focus_N.title → focus_N_title → ≤ 60 ตัวอักษร (เพื่อย่อลง block สไลด์ 9 ได้ไม่ตัดบรรทัด) และต้อง consequence-oriented
+- focus_N.why → focus_N_why → ≤ 2 ประโยค (ขึ้น "Signal จากรายงาน:" chip สไลด์ 3 — ถ้ายาวเกินจะล้น)
+- focus_N.steps → focus_N_steps → array 3 items ตรงเป๊ะ; item แรกต้องสั้นที่สุดและ action-oriented (จะดึงเฉพาะข้อ [0] ไปใส่ "Fix:" chip สไลด์ 3 ≤ 2 บรรทัด); item [1-2] ขยายรายละเอียดได้
+- focus_N.expected_result → focus_N_expected_result → 1 ประโยคเดียว (ใช้ตรวจ outcome — ไม่ใช่ repeat steps)
+- full_report.plan_30_days[0] → week_1_* → สไลด์ 8 สัปดาห์ 1 "Foundation Prep"
+- full_report.plan_30_days[1] → week_2_* → สไลด์ 8 สัปดาห์ 2 "Launch & Drive Traffic"
+- full_report.plan_30_days[2] → week_3_* → สไลด์ 8 สัปดาห์ 3 "Review & Double Down"
+- full_report.plan_30_days[3] → week_4_* → สไลด์ 8 สัปดาห์ 4 "Evaluate & Set Direction"
+- plan_30_days[N].week → week_N_label → ต้องเป็น "สัปดาห์ 1" / "สัปดาห์ 2" / "สัปดาห์ 3" / "สัปดาห์ 4" ตามลำดับ ห้ามใช้คำอื่น
+- plan_30_days[N].title → week_N_title → ≤ 45 ตัวอักษร (เพื่อลง Week header สไลด์ 8 ไม่ตัด)
+- plan_30_days[N].details → week_N_details → array 3 items ตรงเป๊ะ (slot สไลด์ 8 มี 3 bullets) ห้าม 2 หรือ 4 บรรทัด; แต่ละ item ≤ 90 ตัวอักษร
+- full_report.channel_fit.score_pct → channel_fit_score_pct → integer 0-100 (ห้ามใส่เครื่องหมาย % เอง)
+- full_report.channel_fit.label → channel_fit_label → 1 วลีสั้นจากตัวเลือกเหล่านี้เท่านั้น: "เหมาะมาก" / "ยังเหมาะ" / "เหมาะบางส่วน" / "ควรทบทวน" / "ไม่เหมาะ"
+- full_report.channel_fit.long_reason → channel_fit_long_reason → ≤ 3 บรรทัด (ลง bottom-line box สไลด์ 2)
+- full_report.channel_fit.conclusion_lines → channel_fit_conclusion_lines → array 3 items ตรงเป๊ะ; [0] = "What this means" tagline สไลด์ 2 + สไลด์ 9 block "โจทย์" บรรทัด 1 (≤ 2 บรรทัด impactful), [1] = caption สไลด์ 2 ใต้รูป (1 บรรทัด), [2] = ribbon สไลด์ 9 (1 บรรทัด motivational แต่ไม่ fluffy)
+
+ลำดับการคิดก่อนเขียน (บังคับ):
+1. ระบุปัญหาหลักของร้านก่อน → เขียน overview (3-5 ประโยค) ให้มี: ฉากใหญ่ + จุดแข็ง 1 + จุดเจ็บหลัก 1
+2. เขียน channel_fit ให้สอดคล้องกับ overview (score_pct ต้องสมเหตุสมผลกับ label — ถ้า label = "ยังเหมาะ" score ควร 60-79, "เหมาะมาก" ≥ 80, "ควรทบทวน" 40-59)
+3. เรียงลำดับ focus_areas ตาม impact จากสูง→ต่ำ — focus_1 = "ไม่แก้ = ยอดไม่ขึ้น", focus_3 = "ทำได้เลย" (ห้ามสลับลำดับนี้)
+4. plan_30_days ต้อง trace ได้ว่าสัปดาห์ไหนแก้ focus ข้อไหน; week_1 details ควรครอบคลุม prep ของ focus_1 เป็นหลัก
+5. web_summary ใช้ข้อมูลเดียวกันแต่สั้นกว่า — focus_3[i] = focus_areas[i] ย่อ, plan_30_days[i].detail = details ย่อเป็น 1 ประโยค
 
 ให้ตอบตาม schema นี้เท่านั้น:
 {
