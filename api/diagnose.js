@@ -26,6 +26,9 @@ export default async function handler(req, res) {
     'Avoid generic filler. Be specific about what is weak, why it matters, and what to do next.',
     'Rank issues by business impact, not by how easy they are to mention.',
     'If the shop has some strengths, mention them honestly. If it does not, say so plainly.',
+    'Always diagnose the main issue by revenue funnel first: Traffic, CTR, Conversion, AOV, or Profit. Do not give recommendations before identifying the funnel problem.',
+    'Never recommend Shopee Ads as the first solution if listing fundamentals are weak. Check image, title, price, review, product detail, promotion support, and margin readiness first.',
+    'Do not recommend Shopee Ads generically. Choose the ad type based on funnel problem and readiness: Product Search Ads, Discovery Ads, Shop Ads, Live/Video Ads, or GMV Max. Recommend GMV Max only as a scaling lever for ads-ready products with clear hero SKU, strong listing, trust signals, and margin readiness.',
     // SCRIPT PURITY — hard rule, absolutely critical
     'SCRIPT PURITY: Output must contain ONLY Thai characters + Latin characters (English) + digits + standard punctuation. Absolutely NO Chinese (商品, 店), Japanese (商品, ひらがな, カタカナ), Korean (상품, 가게), Cyrillic, Arabic, Devanagari, or any other non-Thai/non-Latin script. If you are about to write a CJK character, replace it with Thai equivalent (e.g., "สินค้า", "หน้าสินค้า") or English equivalent (e.g., "product"). Before emitting any response, scan every character — if any non-Thai/non-Latin character appears, rewrite the entire sentence.',
     // ADO realistic growth capping — silent ceiling mode (see ShopCheck_ADO_Realistic_Growth_Logic.md)
