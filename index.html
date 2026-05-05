@@ -841,6 +841,49 @@ body.result-active .main-stage {
   line-height:1.6;
 }
 
+.tool-option-grid {
+  grid-template-columns:repeat(2, minmax(0,1fr));
+}
+.tool-helper {
+  margin-top:14px;
+  border:1px solid var(--border);
+  border-radius:18px;
+  overflow:hidden;
+  background:#fffdf9;
+}
+.tool-helper-summary {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:13px 16px;
+  font-size:13px;
+  font-weight:700;
+  color:var(--text);
+  background:rgba(255,255,255,.72);
+}
+.tool-helper-summary span:first-child {
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.tool-helper-panel {
+  border-top:1px solid var(--border);
+  padding:12px 16px 14px;
+  background:var(--surface-muted);
+  display:grid;
+  gap:6px;
+}
+.tool-helper-panel p {
+  margin:0;
+  font-size:12px;
+  line-height:1.58;
+  color:var(--text2);
+}
+.tool-helper-panel strong {
+  color:var(--text);
+}
+
 .feedback {
   display:none;
   border-radius:20px;
@@ -2832,58 +2875,48 @@ const DEEP_COMMON = [
   },
   {
     id: "d5",
-    title: "ตอนนี้ร้านใช้เครื่องมือไหนอยู่แล้วบ้าง?",
-    why: "คำตอบข้อนี้ช่วยให้ AI แยกให้ออกว่าร้านยังไม่ใช้เครื่องมือ หรือใช้แล้วแต่ยังไม่เห็นผลที่หวัง / ไม่ตรงปัญหา",
+    title: "ตอนนี้ร้านใช้เครื่องมือ / โปรแกรมไหนอยู่แล้วบ้าง?",
+    why: "เลือกได้มากกว่า 1 ข้อ • เลือกเป็นกลุ่มเครื่องมือก็พอ ไม่ต้องเลือกชื่อย่อยทีละตัว",
     multi: true,
     options: [
       {
-        label: "คูปองร้าน",
-        code: "voucher",
+        label: "คอนเทนต์เพิ่มการมองเห็น",
+        code: "tool_content_visibility",
         cls: "partial"
       },
       {
-        label: "Bundle Deal",
-        code: "bundle",
+        label: "Ads / Paid Traffic",
+        code: "tool_ads_paid_traffic",
         cls: "partial"
       },
       {
-        label: "Flash Sale",
-        code: "flash_sale",
+        label: "Affiliate / Creator / AMS",
+        code: "tool_affiliate_creator_ams",
         cls: "partial"
       },
       {
-        label: "แคมเปญ Shopee",
-        code: "platform_campaign",
+        label: "โปรโมชัน / ดีล / Prime Seller",
+        code: "tool_promotion_deal_prime",
         cls: "partial"
       },
       {
-        label: "ยิง Ads",
-        code: "ads",
+        label: "ส่งด่วน / Next Day",
+        code: "tool_fast_delivery",
         cls: "partial"
       },
       {
-        label: "Live / Video",
-        code: "live_video",
-        cls: "partial"
-      },
-      {
-        label: "Affiliate / Creator",
-        code: "affiliate_creator",
-        cls: "partial"
-      },
-      {
-        label: "Broadcast / CRM ลูกค้าเก่า",
-        code: "crm_repeat",
-        cls: "partial"
-      },
-      {
-        label: "Program Prime Seller",
-        code: "prime_seller",
+        label: "เครื่องมือสนับสนุนธุรกิจ",
+        code: "tool_business_support",
         cls: "partial"
       },
       {
         label: "ยังไม่ได้ใช้จริงจัง",
         code: "not_using_seriously",
+        cls: "partial"
+      },
+      {
+        label: "ไม่แน่ใจ",
+        code: "unsure_tools",
         cls: "partial"
       }
     ]
@@ -3614,22 +3647,19 @@ function scoreIssues() {
   if (d2 === 'medium') { s.content += 0.10; s.trust += 0.05; }
   if (d2 === 'education_high') { s.content += 0.20; s.trust += 0.10; s.visual += 0.10; }
 
-  if (d3.includes('not_using')) s.promo += 0.25;
-  if (!d3.includes('voucher') && !d3.includes('bundle') && !d3.includes('flash')) s.promo += 0.15;
-  if (!d3.includes('ads') && d1 === 'low_visibility') s.traffic += 0.10;
+  const noToolUsed = d5.includes('not_using_seriously') || d5.includes('unsure_tools');
+  if (noToolUsed) { s.promo += 0.20; s.traffic += 0.10; }
+  if (!d5.includes('tool_promotion_deal_prime') && !noToolUsed) s.promo += 0.12;
+  if (!d5.includes('tool_ads_paid_traffic') && d1 === 'low_visibility') s.traffic += 0.10;
+  if (d5.includes('tool_content_visibility')) s.traffic -= 0.05;
+  if (d5.includes('tool_promotion_deal_prime')) s.promo -= 0.05;
+  if (d5.includes('tool_affiliate_creator_ams')) { s.trust -= 0.05; s.traffic -= 0.05; }
+  if (d5.includes('tool_fast_delivery')) s.ops -= 0.05;
 
   if (d4 === 'promo_never') s.promo += 0.20;
   if (d4 === 'promo_some') s.promo += 0.12;
   if (d4 === 'promo_not_work') { s.trust += 0.12; s.price += 0.08; }
   if (d4 === 'promo_work') s.promo -= 0.08;
-
-  if (d5.includes('single_channel')) s.channel -= 0.10;
-  if (d5.includes('no_reason')) s.channel += 0.40;
-  if (d5.includes('safe')) s.channel -= 0.08;
-  if (d5.includes('finance')) s.channel -= 0.12;
-  if (d5.includes('campaign_reason')) s.promo -= 0.05;
-  if (d5.includes('trust_reason')) s.trust -= 0.05;
-  if (d5.filter(code => ['safe','finance','campaign_reason','trust_reason'].includes(code)).length >= 2) s.channel -= 0.08;
 
   return s;
 }
@@ -3649,7 +3679,7 @@ function getCombinedLabel(scores, includeDeep = false) {
       scores.channel >= 0.45 &&
       archetype.comparePriceHigh &&
       mainProblem.includes('ค่าธรรมเนียมแพลตฟอร์มสูง') &&
-      d5.includes('no_reason');
+      (d5.includes('not_using_seriously') || d5.includes('unsure_tools'));
     if (channelBlocker) return 'channel_fit';
     if (scores.ops >= 0.55 && (state.quickAnswers.q8?.val || 0) < 0.5) return 'ops';
     if (d1 === 'view_no_buy' && quickPriceOk && quickPromoLow && ['promo_never','promo_some','promo_unsure'].includes(d4)) return 'price';
@@ -3680,11 +3710,11 @@ function getLabelHeadline(label) {
 function buildStrengthBulletsFromState() {
   const arr = [];
   const d5 = getDeepCodes('d5');
-  const d3 = getDeepCodes('d3');
   if ((state.quickAnswers.q7?.val || 0) >= 0.5) arr.push('จากที่ตอบเรตติ้งดี แปลว่าร้านมีความน่าเชื่อถือ ลูกค้าพอใจกับสินค้า ข้อนี้เป็นจุดแข็งที่เอาไปปั้นร้านโตต่อได้ค่ะ');
-  if (d5.includes('finance')) arr.push('ยังมีลูกค้าบางกลุ่มที่พร้อมซื้อผ่าน Shopee เพราะมองหาโค้ดส่วนลด หรือการผ่อนอย่าง SpayLater อยู่ค่ะ แบบนี้แปลว่าช่องทางนี้ยังมีโอกาสโตได้');
-  if (d5.includes('safe') || d5.includes('trust_reason')) arr.push('ถ้าลูกค้าได้ลองดูสินค้าแล้ว ยังมีโอกาสปิดการขายได้อยู่ ถ้าร้านทำให้เขารู้สึกสบายใจและเชื่อถือมากขึ้นค่ะ');
-  if (d3.some(c => ['voucher','bundle','flash','campaign'].includes(c))) arr.push('ร้านเริ่มใช้เครื่องมือช่วยขายอยู่แล้ว ถือว่าเป็นฐานที่เอาไปต่อยอดได้ ไม่ต้องเริ่มจากศูนย์ค่ะ');
+  if (d5.includes('tool_promotion_deal_prime')) arr.push('ร้านเริ่มใช้กลุ่มโปรโมชัน ดีล หรือ Prime Seller อยู่แล้ว ถือว่าเป็นฐานช่วยให้ลูกค้าตัดสินใจซื้อได้ง่ายขึ้น ไม่ต้องเริ่มจากศูนย์ค่ะ');
+  if (d5.includes('tool_content_visibility')) arr.push('ร้านเริ่มใช้คอนเทนต์อย่าง Video, Live หรือ Easy Design แล้ว จุดนี้ช่วยเพิ่มการมองเห็นและทำให้สินค้าดูมีชีวิตมากขึ้นได้ค่ะ');
+  if (d5.includes('tool_affiliate_creator_ams')) arr.push('ร้านมีฐานจาก Affiliate / Creator / AMS แล้ว ถ้าจัดการคอนเทนต์และ creator fit ดี จะช่วยทั้งการมองเห็นและความน่าเชื่อถือได้ค่ะ');
+  if (d5.includes('tool_fast_delivery')) arr.push('ร้านมีตัวช่วยเรื่องส่งด่วนหรือ Next Day อยู่แล้ว จุดนี้ช่วยลดความลังเลของลูกค้าที่อยากได้ของเร็วค่ะ');
   if ((state.quickAnswers.q1?.val || 0) === 1) arr.push('หน้าร้านและหมวดหมู่สินค้าเริ่มมีโครงที่ดีแล้ว ถ้าเก็บต่ออีกนิด ลูกค้าจะหาของง่ายขึ้นค่ะ');
   if ((state.quickAnswers.q8?.val || 0) === 1) arr.push('ระบบร้านยังพอรับยอดได้อยู่ ถ้าเก็บให้สม่ำเสมอขึ้นอีกนิด จะช่วยให้ร้านโตได้สบายขึ้นค่ะ');
   if (!arr.length) arr.push('ร้านยังมีพื้นฐานบางอย่างให้ต่อยอดได้ค่ะ ขอแค่เลือกแก้ให้ตรงจุดก่อน ไม่ต้องรื้อทุกอย่างพร้อมกัน');
@@ -3696,7 +3726,7 @@ function buildPriorities(label, deepMode = false) {
   const cat = state.profile.shopCat || 'หมวดนี้';
   const d4 = state.deepAnswers.d4?.code || '';
   const d5 = getDeepCodes('d5');
-  const singleChannel = d5.includes('single_channel');
+  const singleChannel = d5.includes('not_using_seriously') || d5.includes('unsure_tools');
   const quickPriceOk = (state.quickAnswers.q5?.val || 0) >= 0.5;
   const quickPromoLow = (state.quickAnswers.q6?.val || 0) < 0.5;
   const promoFirst = ((!deepMode && quickPriceOk && quickPromoLow) || ['promo_never','promo_some','promo_unsure'].includes(d4));
@@ -4102,6 +4132,26 @@ function getDeepCodes(id) {
   return ans?.code ? [ans.code] : [];
 }
 
+function renderToolGroupHelper(q) {
+  if (q.id !== 'd5') return '';
+  return `
+    <div class="tool-helper">
+      <div class="tool-helper-summary">
+        <span>💡 ดูตัวอย่างเครื่องมือในแต่ละกลุ่ม</span>
+        <span style="font-size:18px; line-height:1; color:var(--text2);">⌃</span>
+      </div>
+      <div class="tool-helper-panel">
+        <p><strong>คอนเทนต์:</strong> Shopee Video, Shopee Live, Easy Design</p>
+        <p><strong>Ads:</strong> Shopee Ads, Off-platform Ads</p>
+        <p><strong>Affiliate / AMS:</strong> AMS, Affiliate For Seller, ส่งสินค้าให้ Creator รีวิว</p>
+        <p><strong>โปรโมชัน:</strong> คูปองร้าน, Bundle Deal, Flash Sale, Dynamic Discount, Exclusive Price Campaign, Prime Seller</p>
+        <p><strong>ส่งด่วน:</strong> Fulfillment by Shopee, ส่งด่วน, Next Day Delivery</p>
+        <p><strong>ธุรกิจ:</strong> สินเชื่อสำหรับผู้ขาย</p>
+      </div>
+    </div>
+  `;
+}
+
 function renderDeepQuestion() {
   const questions = getDeepQuestions();
   const q = questions[state.current];
@@ -4125,13 +4175,14 @@ function renderDeepQuestion() {
         <div class="question-title">${escapeHTML(q.title)}</div>
         <div class="question-why">${escapeHTML(q.why)}</div>
       </div>
-      <div class="option-grid">
+      <div class="option-grid ${q.id === 'd5' ? 'tool-option-grid' : ''}">
         ${q.options.map((opt, i) => {
           const active = q.multi ? (Array.isArray(selected) && selected.some(item => item.code === opt.code)) : selected?.code === opt.code;
           const cls = opt.cls || 'partial';
           return `<button class="option-btn ${cls} ${active ? 'selected' : ''}" data-deep-index="${i}"><strong>${escapeHTML(opt.label)}</strong></button>`;
         }).join('')}
       </div>
+      ${renderToolGroupHelper(q)}
     </div>
 
     <div class="bottom-panel">
@@ -4162,10 +4213,11 @@ function renderDeepQuestion() {
         if (exists) {
           current = current.filter(item => item.code !== opt.code);
         } else {
-          if (opt.code === 'no_reason') {
+          const exclusiveCodes = ['no_reason', 'not_using_seriously', 'unsure_tools'];
+          if (exclusiveCodes.includes(opt.code)) {
             current = [opt];
           } else {
-            current = current.filter(item => item.code !== 'no_reason');
+            current = current.filter(item => !exclusiveCodes.includes(item.code));
             current.push(opt);
           }
         }
@@ -4890,7 +4942,6 @@ Product Listing Quality Rubric:
 1. Image:
 รูปแรกต้องเห็นสินค้าชัด แสงดี ไม่รก และสื่อจุดขายได้เร็ว
 ถ้าเป็นสินค้าที่ต้องเห็นการใช้งานจริง ควรมี lifestyle shot หรือรูปตอนใช้จริง
-สำหรับหมวดแฟชั่น เสื้อผ้า Activewear และหมวดที่ต้องคุมภาพลักษณ์แบรนด์ 5 ภาพแรกต้องเป็น brand-owned visuals เท่านั้น ไม่ใช้รูปรีวิวลูกค้าดิบ ๆ เป็นรูปสินค้า
 
 2. Title:
 ชื่อสินค้าต้องมีประเภทสินค้า keyword หลัก จุดขาย รุ่น/ขนาด/วัสดุ/จำนวน หรือ attribute ที่ลูกค้าใช้ค้นหา
@@ -4908,22 +4959,6 @@ Product Listing Quality Rubric:
 
 5. Promotion:
 ต้องดูว่ามี voucher, bundle, add-on deal, flash sale, free shipping support หรือ campaign participation ไหม
-`;
-
-
-const PRODUCT_IMAGE_BRANDING_POLICY = `
-Product Image & Branding Policy:
-
-สำหรับหมวดแฟชั่น เสื้อผ้า Activewear Beauty Lifestyle และหมวดที่ขายด้วยภาพลักษณ์แบรนด์:
-- ห้ามแนะนำให้ใช้รูปรีวิวลูกค้าดิบ ๆ เป็นรูปปก รูปสินค้า หรือ 5 ภาพแรกของหน้าสินค้า
-- ห้ามเขียนว่า "ดึงรีวิวที่มีรูปจริงขึ้นมาไว้ต้นหน้าสินค้า"
-- ห้ามเขียนว่า "เอารูปรีวิวลูกค้ามาใส่ในภาพสินค้า"
-- ห้ามเขียนว่า "ใช้รูปรีวิวลูกค้าเป็นภาพ proof ในหน้าสินค้า"
-- 5 ภาพแรกควรเป็น brand-owned visuals ที่ร้านควบคุม mood, lighting, styling, pose, background และคุณภาพภาพเอง
-- รีวิวลูกค้าใช้เป็น social proof ใน review section ได้ แต่ไม่ควรเอามาแทนภาพสินค้า
-- ใช้ review insight ได้ เช่น ลูกค้าสงสัยเรื่องไซซ์ ผ้า ความกระชับ หรือทรง แล้วแปลง insight นั้นเป็นภาพใหม่ที่แบรนด์ออกแบบเอง
-- ถ้าจะใช้ภาพ influencer / creator ต้องเป็นภาพคุณภาพสูง เข้ากับ visual direction ของร้าน และมีสิทธิ์ใช้งานแล้วเท่านั้น
-- สำหรับ activewear ให้แนะนำภาพประเภท full outfit, front/side/back angle, fit guide, size guide, fabric detail, stretch proof และ styling shot ที่คุม mood แบรนด์
 `;
 
 const FORMAT_POLICY = `
@@ -4964,7 +4999,7 @@ const SELF_CHECK = `
 const CATEGORY_ANALYSIS_GUIDE = {
   "แฟชั่น & เครื่องประดับ (Fashion)": `
 - หมวดนี้ลูกค้าตัดสินใจจากภาพเป็นหลัก ต้องเห็นทรง รายละเอียด วัสดุ และภาพตอนใช้งานจริง
-- ถ้าร้านยังไม่เด่น จุดที่ควรไล่ก่อนคือ 5 ภาพแรกของสินค้าที่อยากดัน ตารางไซส์ รายละเอียดเนื้อผ้าหรือวัสดุ และ trust signal ในหน้าสินค้า โดยใช้รีวิวเป็น insight/social proof เท่านั้น ไม่ใช้รูปรีวิวลูกค้าดิบ ๆ เป็นภาพสินค้า
+- ถ้าร้านยังไม่เด่น จุดที่ควรไล่ก่อนคือ 5 ภาพแรกของสินค้าที่อยากดัน ตารางไซส์ รายละเอียดเนื้อผ้าหรือวัสดุ และรีวิวที่มีภาพ
 - ถ้าราคายังสู้ไม่ได้ ต้องดูว่าร้านสื่อ style / งาน / คุณภาพคุ้มชัดพอหรือยัง ไม่ใช่รีบลงสงครามราคาอย่างเดียว
 `,
   "อุปกรณ์อิเล็กทรอนิกส์ & เครื่องใช้ไฟฟ้า": `
@@ -5082,6 +5117,35 @@ Context: ปี 2024–ปัจจุบัน Shopee push ฟีเจอร�
    ถ้าหมวดสินค้าเข้าข่าย POOR FIT หรือ readiness ไม่ผ่าน → อย่าเขียนถึง ส่งด่วน/ส่งไว ในรายงานเลย. อย่าใส่เป็น "ทำได้ในอนาคต" แบบ filler.
 `;
 
+const TOOL_GROUPING_POLICY = `
+D5 Tool Grouping Policy:
+
+คำถาม D5 แสดงเป็นกลุ่มเครื่องมือ ไม่ใช่ชื่อเครื่องมือย่อยทีละตัว เพราะต้องลดความยาวของตัวเลือกบนหน้าเว็บ แต่ AI ต้องตีความ mapping ด้านล่างให้ถูกต้องเสมอ
+
+1. คอนเทนต์เพิ่มการมองเห็น = Shopee Video, Shopee Live, Easy Design
+Purpose: เพิ่มการมองเห็นและ product discovery ผ่าน content / visual hook
+
+2. Ads / Paid Traffic = Shopee Ads, Off-platform Ads
+Purpose: ซื้อ traffic เพิ่ม ถ้าร้านเลือกข้อนี้แล้วแต่ยอดยังไม่มา ห้ามแนะนำ Ads ซ้ำแบบ generic ต้องวิเคราะห์ต่อว่าเสียที่ CTR, Conversion, listing readiness, offer หรือ budget efficiency
+
+3. Affiliate / Creator / AMS = AMS, Affiliate For Seller, และการส่งสินค้าให้ Content Creator รีวิว
+Purpose: ใช้ creator / affiliate network ช่วยสร้างคอนเทนต์ เพิ่ม traffic เพิ่ม trust และ assisted conversion
+
+4. โปรโมชัน / ดีล / Prime Seller = คูปองร้าน, Bundle Deal, Flash Sale / Dynamic Discount, Exclusive Price Campaign, แคมเปญเพิ่มยอดขาย, Prime Seller
+Purpose: เพิ่มแรงจูงใจในการซื้อ ช่วย conversion และ basket value โดย Prime Seller อยู่กลุ่มนี้เพราะช่วยให้ลูกค้าตัดสินใจซื้อผ่านโค้ดส่งฟรี / CCB / benefit ที่เห็นตอนตัดสินใจ
+
+5. ส่งด่วน / Next Day = Fulfillment by Shopee, ส่งด่วน, Next Day Delivery
+Purpose: ลด friction เรื่องรอของนานและช่วยให้ลูกค้าสบายใจขึ้นก่อนกดซื้อ
+
+6. เครื่องมือสนับสนุนธุรกิจ = สินเชื่อสำหรับผู้ขาย
+Purpose: สนับสนุน cash flow / operation ห้ามตีความเป็นเครื่องมือดันยอดโดยตรง
+
+7. ยังไม่ได้ใช้จริงจัง = ร้านยังไม่ได้วางระบบใช้เครื่องมืออย่างต่อเนื่อง หรือใช้บ้างแต่ไม่เป็นแผน
+8. ไม่แน่ใจ = เจ้าของร้านไม่รู้ว่าเครื่องมือที่ใช้อยู่จัดอยู่กลุ่มไหน หรือยังไม่มี visibility ชัดใน Seller Center
+
+ห้ามใส่ Shopee Mart เป็นเครื่องมือแนะนำสำหรับร้านค้าทั่วไป เพราะไม่ใช่ tool ที่ relevant กับ small/medium seller ทั่วไป และใกล้กับ supermarket-style retail operation มากกว่า
+`;
+
 // Build ADO realistic-growth block for AI prompts
 // Keeps Claude/GPT from promising unrealistic targets (e.g., 0 → 100+ in 30 days)
 function buildADOContextBlock() {
@@ -5183,11 +5247,11 @@ ${getCategoryAnalysisGuide()}
 
 ${LANGUAGE_POLICY}
 ${PLATFORM_LEVER_POLICY}
+${TOOL_GROUPING_POLICY}
 ${FUNNEL_DIAGNOSIS_POLICY}
 ${ADS_READINESS_POLICY}
 ${ADS_TYPE_POLICY}
 ${LISTING_QUALITY_RUBRIC}
-${PRODUCT_IMAGE_BRANDING_POLICY}
 ${DIAGNOSIS_LOGIC}
 ${FORMAT_POLICY}
 ${SELF_CHECK}
@@ -5295,11 +5359,11 @@ ${getCategorySpecificStep2Rules(p.shopCat, p.heroProduct)}
 
 ${LANGUAGE_POLICY}
 ${PLATFORM_LEVER_POLICY}
+${TOOL_GROUPING_POLICY}
 ${FUNNEL_DIAGNOSIS_POLICY}
 ${ADS_READINESS_POLICY}
 ${ADS_TYPE_POLICY}
 ${LISTING_QUALITY_RUBRIC}
-${PRODUCT_IMAGE_BRANDING_POLICY}
 ${DIAGNOSIS_LOGIC}
 ${SELF_CHECK}
 
