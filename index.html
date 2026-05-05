@@ -4890,6 +4890,7 @@ Product Listing Quality Rubric:
 1. Image:
 รูปแรกต้องเห็นสินค้าชัด แสงดี ไม่รก และสื่อจุดขายได้เร็ว
 ถ้าเป็นสินค้าที่ต้องเห็นการใช้งานจริง ควรมี lifestyle shot หรือรูปตอนใช้จริง
+สำหรับหมวดแฟชั่น เสื้อผ้า Activewear และหมวดที่ต้องคุมภาพลักษณ์แบรนด์ 5 ภาพแรกต้องเป็น brand-owned visuals เท่านั้น ไม่ใช้รูปรีวิวลูกค้าดิบ ๆ เป็นรูปสินค้า
 
 2. Title:
 ชื่อสินค้าต้องมีประเภทสินค้า keyword หลัก จุดขาย รุ่น/ขนาด/วัสดุ/จำนวน หรือ attribute ที่ลูกค้าใช้ค้นหา
@@ -4907,6 +4908,22 @@ Product Listing Quality Rubric:
 
 5. Promotion:
 ต้องดูว่ามี voucher, bundle, add-on deal, flash sale, free shipping support หรือ campaign participation ไหม
+`;
+
+
+const PRODUCT_IMAGE_BRANDING_POLICY = `
+Product Image & Branding Policy:
+
+สำหรับหมวดแฟชั่น เสื้อผ้า Activewear Beauty Lifestyle และหมวดที่ขายด้วยภาพลักษณ์แบรนด์:
+- ห้ามแนะนำให้ใช้รูปรีวิวลูกค้าดิบ ๆ เป็นรูปปก รูปสินค้า หรือ 5 ภาพแรกของหน้าสินค้า
+- ห้ามเขียนว่า "ดึงรีวิวที่มีรูปจริงขึ้นมาไว้ต้นหน้าสินค้า"
+- ห้ามเขียนว่า "เอารูปรีวิวลูกค้ามาใส่ในภาพสินค้า"
+- ห้ามเขียนว่า "ใช้รูปรีวิวลูกค้าเป็นภาพ proof ในหน้าสินค้า"
+- 5 ภาพแรกควรเป็น brand-owned visuals ที่ร้านควบคุม mood, lighting, styling, pose, background และคุณภาพภาพเอง
+- รีวิวลูกค้าใช้เป็น social proof ใน review section ได้ แต่ไม่ควรเอามาแทนภาพสินค้า
+- ใช้ review insight ได้ เช่น ลูกค้าสงสัยเรื่องไซซ์ ผ้า ความกระชับ หรือทรง แล้วแปลง insight นั้นเป็นภาพใหม่ที่แบรนด์ออกแบบเอง
+- ถ้าจะใช้ภาพ influencer / creator ต้องเป็นภาพคุณภาพสูง เข้ากับ visual direction ของร้าน และมีสิทธิ์ใช้งานแล้วเท่านั้น
+- สำหรับ activewear ให้แนะนำภาพประเภท full outfit, front/side/back angle, fit guide, size guide, fabric detail, stretch proof และ styling shot ที่คุม mood แบรนด์
 `;
 
 const FORMAT_POLICY = `
@@ -4947,7 +4964,7 @@ const SELF_CHECK = `
 const CATEGORY_ANALYSIS_GUIDE = {
   "แฟชั่น & เครื่องประดับ (Fashion)": `
 - หมวดนี้ลูกค้าตัดสินใจจากภาพเป็นหลัก ต้องเห็นทรง รายละเอียด วัสดุ และภาพตอนใช้งานจริง
-- ถ้าร้านยังไม่เด่น จุดที่ควรไล่ก่อนคือ 5 ภาพแรกของสินค้าที่อยากดัน ตารางไซส์ รายละเอียดเนื้อผ้าหรือวัสดุ และรีวิวที่มีภาพ
+- ถ้าร้านยังไม่เด่น จุดที่ควรไล่ก่อนคือ 5 ภาพแรกของสินค้าที่อยากดัน ตารางไซส์ รายละเอียดเนื้อผ้าหรือวัสดุ และ trust signal ในหน้าสินค้า โดยใช้รีวิวเป็น insight/social proof เท่านั้น ไม่ใช้รูปรีวิวลูกค้าดิบ ๆ เป็นภาพสินค้า
 - ถ้าราคายังสู้ไม่ได้ ต้องดูว่าร้านสื่อ style / งาน / คุณภาพคุ้มชัดพอหรือยัง ไม่ใช่รีบลงสงครามราคาอย่างเดียว
 `,
   "อุปกรณ์อิเล็กทรอนิกส์ & เครื่องใช้ไฟฟ้า": `
@@ -5170,6 +5187,7 @@ ${FUNNEL_DIAGNOSIS_POLICY}
 ${ADS_READINESS_POLICY}
 ${ADS_TYPE_POLICY}
 ${LISTING_QUALITY_RUBRIC}
+${PRODUCT_IMAGE_BRANDING_POLICY}
 ${DIAGNOSIS_LOGIC}
 ${FORMAT_POLICY}
 ${SELF_CHECK}
@@ -5281,6 +5299,7 @@ ${FUNNEL_DIAGNOSIS_POLICY}
 ${ADS_READINESS_POLICY}
 ${ADS_TYPE_POLICY}
 ${LISTING_QUALITY_RUBRIC}
+${PRODUCT_IMAGE_BRANDING_POLICY}
 ${DIAGNOSIS_LOGIC}
 ${SELF_CHECK}
 
