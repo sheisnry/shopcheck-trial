@@ -29,7 +29,9 @@ export default async function handler(req, res) {
     'Always diagnose the main issue by revenue funnel first: Traffic, CTR, Conversion, AOV, or Profit. Do not give recommendations before identifying the funnel problem.',
     'Never recommend Shopee Ads as the first solution if listing fundamentals are weak. Check image, title, price, review, product detail, promotion support, and margin readiness first.',
     'Do not recommend Shopee Ads generically. Choose the ad type based on funnel problem and readiness: Product Search Ads, Discovery Ads, Shop Ads, Live/Video Ads, or GMV Max. Recommend GMV Max only as a scaling lever for ads-ready products with clear hero SKU, strong listing, trust signals, and margin readiness.',
-    'PRODUCT IMAGE BRANDING POLICY: For fashion, apparel, activewear, beauty, lifestyle, or brand-led categories, never recommend using raw customer review photos as cover images, product listing images, or the first 5 product images. Do not write recommendations such as "ดึงรีวิวที่มีรูปจริงขึ้นมาไว้ต้นหน้าสินค้า", "เอารูปรีวิวลูกค้ามาใส่ในภาพสินค้า", or "ใช้รูปรีวิวลูกค้าเป็นภาพ proof ในหน้าสินค้า". Reviews are social proof and insight, but the first product images must be brand-owned visuals controlled by the seller or brand. Use review insights to create brand-controlled fit guide, size guide, fabric detail, front/side/back angle, stretch proof, or styling images. Influencer or creator images may be recommended only if image quality matches the brand direction and usage rights are secured.',
+    'PRODUCT IMAGE BRANDING POLICY: For fashion, apparel, activewear, beauty, lifestyle, or brand-led categories, never recommend using raw customer review photos as cover images, product listing images, or the first 5 product images. Reviews are social proof and insight, but the first product images must be brand-owned visuals controlled by the seller or brand. Influencer or creator images may be recommended only if image quality matches the brand direction and usage rights are secured.',
+    'IMAGE RECOMMENDATION GATE: Do not recommend improving the first 5 product images, cover image, or product visuals as the main action when Q2 indicates the product cover image/video is already strong. If Q2 is strong, treat image/video as a strength and route the analysis to the next weakest funnel: Traffic, Conversion, AOV, Profit, Operation, Promotion, or Trust. Never place "ปรับ 5 ภาพแรก", "แก้รูปปก", "ทำภาพใหม่", or "เพิ่มภาพสินค้า" as Focus Area #1 or Week 1 action unless Q2 is weak or Q7 explicitly points to click-through/visual hook and another answer confirms visual weakness.',
+    'Q7 BOTTLENECK ROUTING: Treat Q7 as a major routing signal. If Q7 says search visibility, focus on Traffic/Search/Keyword/Category/Campaign/Ads readiness. If Q7 says click-through, focus on CTR/title/price display/promo tag/visual hook, but do not recommend images first if Q2 is strong. If Q7 says Conversion, focus on trust/review/detail/offer/price/shipping/purchase motivation. If Q7 says price/promotion, focus on pricing/voucher/bundle/Prime Seller/deal structure/margin/value communication. If Q7 says trust, focus on review/rating/sales proof/seller reliability/delivery promise/return clarity/creator proof. If Q7 is unsure, diagnose from the weakest funnel.',
     // SCRIPT PURITY — hard rule, absolutely critical
     'SCRIPT PURITY: Output must contain ONLY Thai characters + Latin characters (English) + digits + standard punctuation. Absolutely NO Chinese (商品, 店), Japanese (商品, ひらがな, カタカナ), Korean (상품, 가게), Cyrillic, Arabic, Devanagari, or any other non-Thai/non-Latin script. If you are about to write a CJK character, replace it with Thai equivalent (e.g., "สินค้า", "หน้าสินค้า") or English equivalent (e.g., "product"). Before emitting any response, scan every character — if any non-Thai/non-Latin character appears, rewrite the entire sentence.',
     // ADO realistic growth capping — silent ceiling mode
@@ -141,8 +143,8 @@ export default async function handler(req, res) {
 
     const fallbackFocus = [
       {
-        title: 'ทำให้สินค้าที่อยากดันมีเหตุผลให้ซื้อชัดขึ้น',
-        desc: 'ปรับภาพหน้าสินค้าและจุดขายให้ลูกค้าเข้าใจได้เร็วขึ้นตั้งแต่ก่อนเลื่อนอ่านรายละเอียด',
+        title: 'หาจุดที่รั่วที่สุดใน funnel แล้วแก้ให้ตรงจุด',
+        desc: 'เริ่มจากจุดที่คำตอบชี้ว่าเป็นปัญหาหลักจริง เช่น การหาเจอ ราคา โปร ความน่าเชื่อถือ หรือการปิดการขาย ไม่ใช่เริ่มจากภาพทุกเคส',
         tag: 'impact สูง'
       },
       {
@@ -160,8 +162,8 @@ export default async function handler(req, res) {
     const fallbackWeeks = [
       {
         week: 'สัปดาห์ที่ 1',
-        title: 'จัดหน้าสินค้าให้ชัดขึ้น',
-        detail: 'เริ่มจาก 5 ภาพแรกของสินค้าที่อยากดันและข้อความที่ลูกค้าเห็นก่อนตัดสินใจ'
+        title: 'เช็กจุดที่รั่วที่สุดก่อนลงแรงแก้',
+        detail: 'ดูจากคำตอบว่าเสียที่การหาเจอ การกดเข้า ราคา โปร รีวิว หรือการปิดการขาย แล้วเริ่มแก้จุดนั้นก่อน ถ้าภาพดีอยู่แล้วไม่ต้องรื้อภาพใหม่'
       },
       {
         week: 'สัปดาห์ที่ 2',
