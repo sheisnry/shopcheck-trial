@@ -6,31 +6,79 @@ function asObject(value) {
   return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
 }
 
-function parseStep2Payload(value) {
-  if (!value) return { raw: null, webSummary: null, fullReport: null };
-
-  const raw = typeof value === 'string' ? value : JSON.stringify(value);
-  let parsed = null;
-
-  if (typeof value === 'string') {
-    try {
-      parsed = JSON.parse(value);
-    } catch {
-      parsed = null;
-    }
-  } else if (typeof value === 'object') {
-    parsed = value;
+function asTextOrJSON(value) {
+  if (value == null) return null;
+  if (typeof value === 'string') return value || null;
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return String(value);
   }
+}
 
-  const webSummary = parsed?.web_summary && typeof parsed.web_summary === 'object'
-    ? parsed.web_summary
-    : null;
+function buildAnswerPayload(body) {
+  const {
+    profile,
+    quickAnswers,
+    deepAnswers,
+    email,
+    name,
+    lineId,
+    paymentMethod,
+    version,
+    step1AIResult,
+    step2AIResult,
+    step1Prompt,
+    step2Prompt,
+    leadStage,
+    isDraftLead
+  } = body || {};
 
-  const fullReport = parsed?.full_report && typeof parsed.full_report === 'object'
-    ? parsed.full_report
-    : null;
+  const cleanEmail = typeof email === 'string' ? email.trim() : '';
+  const cleanName = typeof name === 'string' ? name.trim() : '';
+  const cleanLineId = typeof lineId === 'string' ? lineId.trim() : '';
+  const safeProfile = asObject(profile);
 
-  return { raw, webSummary, fullReport };
+  return {
+    source: 'shopcheck-web',
+    lead_stage: leadStage || null,
+    version: version || 'shopcheck_v2',
+
+    shop_name: safeProfile.shopName || null,
+    shop_cat: safeProfile.shopCat || null,
+    hero_product: safeProfile.heroProduct || null,
+    monthly_orders: safeProfile.monthlyOrders || null,
+    target_orders: safeProfile.targetOrders || null,
+    main_problem: safeProfile.mainProblem || null,
+    viral_scenario: Boolean(safeProfile.viralScenario),
+
+    customer_name: cleanName || null,
+    email: isValidEmail(cleanEmail) ? cleanEmail : null,
+    line_id: cleanLineId || null,
+    payment_method: paymentMethod || null,
+    is_draft_lead: Boolean(isDraftLead),
+
+    profile: safeProfile,
+    quick_answers: asObject(quickAnswers),
+    deep_answers: asObject(deepAnswers),
+
+    step1_ai_result: asTextOrJSON(step1AIResult),
+    step2_ai_result: asTextOrJSON(step2AIResult),
+    step1_prompt: asTextOrJSON(step1Prompt),
+    step2_prompt: asTextOrJSON(step2Prompt),
+
+    raw_payload: body || {}
+  };
+}
+
+async function readJsonSafe(response) {
+  const text = await response.text();
+  if (!text) return null;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { raw: text };
+  }
 }
 
 export default async function handler(req, res) {
@@ -47,25 +95,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    const {
-      submissionId,
-      profile,
-      quickAnswers,
-      deepAnswers,
-      email,
-      name,
-      lineId,
-      deliveryChannel,
-      paymentMethod,
-      paymentStatus,
-      deliveryStatus,
-      version,
-      step1AIResult,
-      step2AIResult,
-      step1Prompt,
-      step2Prompt,
-      notes
-    } = req.body || {};
+    const body = req.body || {};
+    const { submissionId, profile } = body;
 
     if (
       !profile?.shopCat ||
@@ -78,51 +109,13 @@ export default async function handler(req, res) {
 
     const supabaseUrl = process.env.SUPABASE_URL;
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    const tableName = process.env.SHOPCHECK_SUBMISSIONS_TABLE || 'shopcheck_submissions_v2';
+    const tableName = process.env.SHOPCHECK_ANSWERS_TABLE || 'shopcheck_answer_submissions_v1';
 
     if (!supabaseUrl || !serviceRoleKey) {
       return res.status(500).json({ error: 'Supabase env vars are missing' });
     }
 
-    const cleanEmail = typeof email === 'string' ? email.trim() : '';
-    const cleanName = typeof name === 'string' ? name.trim() : '';
-    const cleanLineId = typeof lineId === 'string' ? lineId.trim() : '';
-    const finalDeliveryChannel = deliveryChannel === 'line' ? 'line' : 'email';
-
-    const { raw: step2Raw, webSummary, fullReport } = parseStep2Payload(step2AIResult);
-
-    const payload = {
-      shop_name: profile.shopName || null,
-      shop_cat: profile.shopCat || null,
-      hero_product: profile.heroProduct || null,
-      monthly_orders: profile.monthlyOrders || null,
-      target_orders: profile.targetOrders || null,
-      main_problem: profile.mainProblem || null,
-
-      customer_name: cleanName || null,
-      customer_email: isValidEmail(cleanEmail) ? cleanEmail : null,
-      customer_line_id: cleanLineId || null,
-
-      payment_method: paymentMethod || null,
-      payment_status: paymentStatus || 'pending',
-      delivery_channel: finalDeliveryChannel,
-      delivery_status: deliveryStatus || 'pending',
-
-      quick_answers: asObject(quickAnswers),
-      deep_answers: asObject(deepAnswers),
-
-      version: version || 'shopcheck_v2',
-      source: 'shopcheck-web',
-      status: isValidEmail(cleanEmail) || cleanLineId ? 'new' : 'draft',
-
-      step1_prompt: step1Prompt || null,
-      step2_prompt: step2Prompt || null,
-      step1_result_text: step1AIResult || null,
-      step2_result_raw: step2Raw,
-      step2_web_summary: webSummary,
-      step2_full_report: fullReport,
-      notes: typeof notes === 'string' ? notes.trim() || null : null
-    };
+    const payload = buildAnswerPayload(body);
 
     const headers = {
       'Content-Type': 'application/json',
@@ -150,11 +143,11 @@ export default async function handler(req, res) {
       });
     }
 
-    const data = await response.json();
+    const data = await readJsonSafe(response);
 
     if (!response.ok) {
       return res.status(500).json({
-        error: submissionId ? 'Failed to update submission' : 'Failed to save submission',
+        error: submissionId ? 'Failed to update answer submission' : 'Failed to save answer submission',
         details: data
       });
     }
