@@ -6,27 +6,82 @@ function asObject(value) {
   return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
 }
 
-function parseStep2Payload(value) {
-  if (!value) return { raw: null, webSummary: null, fullReport: null };
+function asTextOrJSON(value) {
+  if (value == null) return null;
+  if (typeof value === 'string') return value || null;
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return String(value);
+  }
+}
 
-  const raw = typeof value === 'string' ? value : JSON.stringify(value);
-  let parsed = null;
+function buildAnswerPatch(body) {
+  const {
+    profile,
+    quickAnswers,
+    deepAnswers,
+    email,
+    name,
+    lineId,
+    paymentMethod,
+    version,
+    step1AIResult,
+    step2AIResult,
+    step1Prompt,
+    step2Prompt,
+    leadStage,
+    isDraftLead
+  } = body || {};
 
-  if (typeof value === 'string') {
-    try {
-      parsed = JSON.parse(value);
-    } catch {
-      parsed = null;
-    }
-  } else if (typeof value === 'object') {
-    parsed = value;
+  const patch = {
+    raw_payload: body || {}
+  };
+
+  if (leadStage !== undefined) patch.lead_stage = leadStage || null;
+  if (version !== undefined) patch.version = version || 'shopcheck_v2';
+
+  if (profile && typeof profile === 'object') {
+    const safeProfile = asObject(profile);
+    patch.shop_name = safeProfile.shopName || null;
+    patch.shop_cat = safeProfile.shopCat || null;
+    patch.hero_product = safeProfile.heroProduct || null;
+    patch.monthly_orders = safeProfile.monthlyOrders || null;
+    patch.target_orders = safeProfile.targetOrders || null;
+    patch.main_problem = safeProfile.mainProblem || null;
+    patch.viral_scenario = Boolean(safeProfile.viralScenario);
+    patch.profile = safeProfile;
   }
 
-  return {
-    raw,
-    webSummary: parsed?.web_summary && typeof parsed.web_summary === 'object' ? parsed.web_summary : null,
-    fullReport: parsed?.full_report && typeof parsed.full_report === 'object' ? parsed.full_report : null
-  };
+  if (quickAnswers !== undefined) patch.quick_answers = asObject(quickAnswers);
+  if (deepAnswers !== undefined) patch.deep_answers = asObject(deepAnswers);
+
+  if (typeof email === 'string') {
+    const cleanEmail = email.trim();
+    patch.email = isValidEmail(cleanEmail) ? cleanEmail : null;
+  }
+
+  if (typeof name === 'string') patch.customer_name = name.trim() || null;
+  if (typeof lineId === 'string') patch.line_id = lineId.trim() || null;
+  if (paymentMethod !== undefined) patch.payment_method = paymentMethod || null;
+  if (isDraftLead !== undefined) patch.is_draft_lead = Boolean(isDraftLead);
+
+  if (step1AIResult !== undefined) patch.step1_ai_result = asTextOrJSON(step1AIResult);
+  if (step2AIResult !== undefined) patch.step2_ai_result = asTextOrJSON(step2AIResult);
+  if (step1Prompt !== undefined) patch.step1_prompt = asTextOrJSON(step1Prompt);
+  if (step2Prompt !== undefined) patch.step2_prompt = asTextOrJSON(step2Prompt);
+
+  return patch;
+}
+
+async function readJsonSafe(response) {
+  const text = await response.text();
+  if (!text) return null;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { raw: text };
+  }
 }
 
 export default async function handler(req, res) {
@@ -43,26 +98,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    const {
-      submissionId,
-      profile,
-      quickAnswers,
-      deepAnswers,
-      email,
-      name,
-      lineId,
-      deliveryChannel,
-      paymentMethod,
-      paymentStatus,
-      deliveryStatus,
-      version,
-      step1AIResult,
-      step2AIResult,
-      step1Prompt,
-      step2Prompt,
-      status,
-      notes
-    } = req.body || {};
+    const body = req.body || {};
+    const { submissionId } = body;
 
     if (!submissionId) {
       return res.status(400).json({ error: 'submissionId is required' });
@@ -70,59 +107,13 @@ export default async function handler(req, res) {
 
     const supabaseUrl = process.env.SUPABASE_URL;
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    const tableName = process.env.SHOPCHECK_SUBMISSIONS_TABLE || 'shopcheck_submissions_v2';
+    const tableName = process.env.SHOPCHECK_ANSWERS_TABLE || 'shopcheck_answer_submissions_v1';
 
     if (!supabaseUrl || !serviceRoleKey) {
       return res.status(500).json({ error: 'Supabase env vars are missing' });
     }
 
-    const patch = {};
-
-    if (profile) {
-      patch.shop_name = profile.shopName || null;
-      patch.shop_cat = profile.shopCat || null;
-      patch.hero_product = profile.heroProduct || null;
-      patch.monthly_orders = profile.monthlyOrders || null;
-      patch.target_orders = profile.targetOrders || null;
-      patch.main_problem = profile.mainProblem || null;
-    }
-
-    if (quickAnswers) patch.quick_answers = asObject(quickAnswers);
-    if (deepAnswers) patch.deep_answers = asObject(deepAnswers);
-
-    if (typeof email === 'string') {
-      patch.customer_email = isValidEmail(email.trim()) ? email.trim() : null;
-    }
-
-    if (typeof name === 'string') {
-      patch.customer_name = name.trim() || null;
-    }
-
-    if (typeof lineId === 'string') {
-      patch.customer_line_id = lineId.trim() || null;
-    }
-
-    if (deliveryChannel) {
-      patch.delivery_channel = deliveryChannel === 'line' ? 'line' : 'email';
-    }
-
-    if (paymentMethod) patch.payment_method = paymentMethod;
-    if (paymentStatus) patch.payment_status = paymentStatus;
-    if (deliveryStatus) patch.delivery_status = deliveryStatus;
-    if (status) patch.status = status;
-    if (version) patch.version = version;
-    if (typeof notes === 'string') patch.notes = notes.trim() || null;
-
-    if (typeof step1Prompt === 'string') patch.step1_prompt = step1Prompt || null;
-    if (typeof step2Prompt === 'string') patch.step2_prompt = step2Prompt || null;
-    if (typeof step1AIResult === 'string') patch.step1_result_text = step1AIResult || null;
-
-    if (step2AIResult != null) {
-      const { raw, webSummary, fullReport } = parseStep2Payload(step2AIResult);
-      patch.step2_result_raw = raw;
-      patch.step2_web_summary = webSummary;
-      patch.step2_full_report = fullReport;
-    }
+    const patch = buildAnswerPatch(body);
 
     const response = await fetch(
       `${supabaseUrl}/rest/v1/${tableName}?id=eq.${encodeURIComponent(submissionId)}`,
@@ -138,11 +129,11 @@ export default async function handler(req, res) {
       }
     );
 
-    const data = await response.json();
+    const data = await readJsonSafe(response);
 
     if (!response.ok) {
       return res.status(500).json({
-        error: 'Failed to update submission',
+        error: 'Failed to update answer submission',
         details: data
       });
     }
